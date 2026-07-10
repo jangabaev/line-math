@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
+import type { Node } from "./types/index.js";
 
 function App() {
-  const [nodes, setNodes] = useState([
+  const [nodes, setNodes] = useState<Node>([
     {
       x: 700,
       y: 500,
@@ -10,7 +11,18 @@ function App() {
       parentId: [],
     },
   ]);
+  const [camera, setCamera] = useState({
+    x: 0,
+    y: 0,
+    zoom: 1,
+  });
+  const [isPanning, setIsPanning] = useState(false);
   const [lines, setLines] = useState([]);
+
+const lastPoint = useRef({
+    x:0,
+    y:0
+});
   const draggingNodeId = useRef(null);
   const offset = useRef({ x: 0, y: 0 });
 
@@ -54,6 +66,14 @@ function App() {
 
   const handleMouseDown = (node, e) => {
     console.log(e);
+     if(e.target!==e.currentTarget) return;
+
+    setIsPanning(true);
+
+    lastPoint.current={
+        x:e.clientX,
+        y:e.clientY
+    }
 
     if (draggingNodeId.current) {
       return (draggingNodeId.current = null);
@@ -91,11 +111,21 @@ function App() {
   console.log(lines);
   return (
     <main>
+    <div
+        className="canvas"
+        style={{
+            transform: `translate(${-camera.x}px, ${-camera.y}px) scale(${camera.zoom})`,
+            transformOrigin: "0 0",
+        }}
+    >
       {nodes.map((el) => {
         return (
           <div
             className="circle"
-            style={{ left: `${el.x}px`, top: `${el.y}px` }}
+            style={{
+              left: (el.x - camera.x) * camera.zoom,
+              top: (el.y - camera.y) * camera.zoom,
+            }}
             key={el.id}
             onClick={() => clickCircle(el)}
             onMouseDown={(e) => handleMouseDown(el, e)}
@@ -121,6 +151,7 @@ function App() {
           );
         })}
       </svg>
+      </div>
     </main>
   );
 }
