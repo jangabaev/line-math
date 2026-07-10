@@ -7,19 +7,22 @@ function App() {
       y: 500,
       id: 1,
       count: 0,
+      parentId: [],
     },
   ]);
   const [lines, setLines] = useState([]);
   const draggingNodeId = useRef(null);
-    const offset = useRef({ x: 0, y: 0 });
+  const offset = useRef({ x: 0, y: 0 });
 
-  const radius = 200;
+  const radius = 400;
+  const cirlceRaduis = 50;
+
   const clickCircle = (node) => {
     const random = Math.floor(Math.random() * radius);
     const randmx = Math.floor(Math.random() * 100);
     const randmy = Math.floor(Math.random() * 100);
-    const radus = 25;
-    
+    const radus = 300;
+
     setNodes((el) => [
       ...el.map((e) => {
         if (e.id === node.id) {
@@ -42,46 +45,50 @@ function App() {
       return [
         ...el,
         {
-          x1: node.x + radus,
-          y1: node.y + radus,
-          x2:
-            randmx % 2 == 0 ? node.x - random + radus : node.x + random + radus,
-          y2:
-            randmy % 2 == 0
-              ? node.y - Math.sqrt(radius ** 2 - random ** 2) + radus
-              : node.y + Math.sqrt(radius ** 2 - random ** 2) + radus,
+          from: node.id,
+          to: nodes[nodes.length - 1].id + 1,
         },
       ];
     });
   };
 
   const handleMouseDown = (node, e) => {
-    console.log(e)
-    // e.stopPropagation(); // Hodisa boshqa elementlarga o'tib ketmasligi uchun
-    // draggingNodeId.current = node.id;
+    console.log(e);
 
-    // // Sichqoncha nodening aynan qayeridan bosilganini aniqlash
-    // offset.current = {
-    //   x: e.clientX - node.x,
-    //   y: e.clientY - node.y,
-    // };
+    if (draggingNodeId.current) {
+      return (draggingNodeId.current = null);
+    }
+
+    e.stopPropagation(); // Hodisa boshqa elementlarga o'tib ketmasligi uchun
+    draggingNodeId.current = node.id;
+
+    // Sichqoncha nodening aynan qayeridan bosilganini aniqlash
+    offset.current = {
+      x: e.clientX - node.x,
+      y: e.clientY - node.y,
+    };
   };
   const handleMouseMove = (e) => {
-    console.log(e)
-    // if (draggingNodeId.current === null) return;
+    // console.log(e);
+    if (draggingNodeId.current === null) return;
 
-    // const updatedX = e.clientX - offset.current.x;
-    // const updatedY = e.clientY - offset.current.y;
+    const updatedX = e.clientX - offset.current.x;
+    const updatedY = e.clientY - offset.current.y;
 
-    // setNodes((prevNodes) =>
-    //   prevNodes.map((node) => {
-    //     if (node.id === draggingNodeId.current) {
-    //       return { ...node, x: updatedX, y: updatedY };
-    //     }
-    //     return node;
-    //   }),
-    // );
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id === draggingNodeId.current) {
+          return { ...node, x: updatedX, y: updatedY };
+        }
+        return node;
+      }),
+    );
   };
+  const handleMouseUp = () => {
+    draggingNodeId.current = null;
+  };
+
+  console.log(lines);
   return (
     <main>
       {nodes.map((el) => {
@@ -92,6 +99,8 @@ function App() {
             key={el.id}
             onClick={() => clickCircle(el)}
             onMouseDown={(e) => handleMouseDown(el, e)}
+            onMouseMove={(e) => handleMouseMove(e)}
+            onMouseUp={() => handleMouseUp()}
           >
             {el.count}
           </div>
@@ -99,12 +108,14 @@ function App() {
       })}
       <svg className="svg" xmlns="http://www.w3.org/2000/svg">
         {lines.map((el) => {
+          const from = nodes.find((n) => n.id === el.from);
+          const to = nodes.find((n) => n.id === el.to);
           return (
             <line
-              x1={el.x1}
-              y1={el.y1}
-              x2={el.x2}
-              y2={el.y2}
+              x1={from.x + cirlceRaduis / 2}
+              y1={from.y + cirlceRaduis / 2}
+              x2={to.x + cirlceRaduis / 2}
+              y2={to.y + cirlceRaduis / 2}
               className="stroke"
             />
           );
