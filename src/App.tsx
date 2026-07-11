@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import type { Node } from "./types/index.js";
+import {type Edge, type Node } from "./types/index.js";
 
 function App() {
-  const [nodes, setNodes] = useState<Node>([
+  const [nodes, setNodes] = useState<Node[]>([
     {
       x: 700,
       y: 500,
@@ -17,19 +17,19 @@ function App() {
     zoom: 1,
   });
   const [isPanning, setIsPanning] = useState(false);
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState<Edge[]>([]);
 
 const lastPoint = useRef({
     x:0,
     y:0
 });
-  const draggingNodeId = useRef(null);
+  const draggingNodeId = useRef<number | null>(null);
   const offset = useRef({ x: 0, y: 0 });
 
   const radius = 400;
   const cirlceRaduis = 50;
 
-  const clickCircle = (node) => {
+  const clickCircle = (node:Node) => {
     const random = Math.floor(Math.random() * radius);
     const randmx = Math.floor(Math.random() * 100);
     const randmy = Math.floor(Math.random() * 100);
@@ -38,7 +38,7 @@ const lastPoint = useRef({
     setNodes((el) => [
       ...el.map((e) => {
         if (e.id === node.id) {
-          return { ...e, count: e.count + 1 };
+          return { ...e, count: e.count??0 + 1 };
         }
         return e;
       }),
@@ -48,7 +48,7 @@ const lastPoint = useRef({
           randmy % 2 == 0
             ? node.y - Math.sqrt(radius ** 2 - random ** 2)
             : node.y + Math.sqrt(radius ** 2 - random ** 2),
-        id: nodes[nodes.length - 1].id + 1,
+        id: (nodes.length > 0 ? nodes[nodes.length - 1]!.id : 0) + 1,
         count: 0,
       },
     ]);
@@ -58,13 +58,13 @@ const lastPoint = useRef({
         ...el,
         {
           from: node.id,
-          to: nodes[nodes.length - 1].id + 1,
+          to: (nodes.length > 0 ? nodes[nodes.length - 1]!.id : 0) + 1,
         },
       ];
     });
   };
 
-  const handleMouseDown = (node, e) => {
+  const handleMouseDown = (node:Node, e:any) => {
     console.log(e);
      if(e.target!==e.currentTarget) return;
 
@@ -88,7 +88,7 @@ const lastPoint = useRef({
       y: e.clientY - node.y,
     };
   };
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e:any) => {
     // console.log(e);
     if (draggingNodeId.current === null) return;
 
@@ -138,8 +138,8 @@ const lastPoint = useRef({
       })}
       <svg className="svg" xmlns="http://www.w3.org/2000/svg">
         {lines.map((el) => {
-          const from = nodes.find((n) => n.id === el.from);
-          const to = nodes.find((n) => n.id === el.to);
+          const from = nodes.find((n) => n.id === el.from)||{x:0,y:0};
+          const to = nodes.find((n) => n.id === el.to)||{x:0,y:0};
           return (
             <line
               x1={from.x + cirlceRaduis / 2}
