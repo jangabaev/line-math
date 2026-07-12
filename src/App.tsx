@@ -3,6 +3,9 @@ import { type Edge, type Node } from "./types/index.js";
 import { useCanvasStore } from "./store/useCanvasStore.js";
 import Panel from "./components/panel/index.js";
 import { v4 as uuidv4 } from 'uuid';
+import { worldToScreen } from "./utils/camera.js";
+import { findForStyleCursor } from "./utils/cursor.js";
+import Nodes from "./components/nodes/index.js";
 
 function App() {
   const {
@@ -14,14 +17,10 @@ function App() {
     createPen,
     pencilMove,
     lines,
+    camera,
+    moveCamera
   } = useCanvasStore((state) => state);
-
-
-  const [camera, setCamera] = useState({
-    x: 0,
-    y: 0,
-    zoom: 1,
-  });
+  console.log(camera)
 
   const [isPanning, setIsPanning] = useState(false);
 
@@ -29,40 +28,25 @@ function App() {
     x: 0,
     y: 0,
   });
+
+  console.log(lastPoint.current)
   const draggingNodeId = useRef<number | null>(null);
+
+  
   const draggingLineId = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offset = useRef({ x: 0, y: 0 })
+
+
+  const lastMouse = useRef({
+    x: 0,
+    y: 0,
+  });
   const radius = 400;
   const cirlceRaduis = 50;
 
-   
-  const clickCircle = (node: Node) => {
-    const random = Math.floor(Math.random() * radius);
-    const randmx = Math.floor(Math.random() * 100);
-    const randmy = Math.floor(Math.random() * 100);
-    const radus = 300;
 
-    createNode({
-      x: randmx % 2 == 0 ? node.x - random : node.x + random,
-      y:
-        randmy % 2 == 0
-          ? node.y - Math.sqrt(radius ** 2 - random ** 2)
-          : node.y + Math.sqrt(radius ** 2 - random ** 2),
-      id: (nodes.length > 0 ? nodes[nodes.length - 1]!.id : 0) + 1,
-      count: 0,
-    });
 
-    // setLines((el) => {
-    //   return [
-    //     ...el,
-    //     {
-    //       from: node.id,
-    //       to: (nodes.length > 0 ? nodes[nodes.length - 1]!.id : 0) + 1,
-    //     },
-    //   ];
-    // });
-  };
 
   const handleMouseDown = (node: Node, e: any) => {
     if (e.target !== e.currentTarget) return;
@@ -90,15 +74,30 @@ function App() {
       y: e.clientY - node.y,
     };
   };
-  
+
   const handleMouseMove = (e: any) => {
-    
+
     if (cursor === "pencil") {
       return pencilMove({
-        id: draggingLineId.current??"",
+        id: draggingLineId.current ?? "",
         x: e.clientX,
         y: e.clientY,
       });
+    }
+
+    if (cursor === "hand" && isPanning) {
+     
+    const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+
+      moveCamera({ x: dx, y: dy, zoom: camera.zoom });
+      
+ lastMouse.current = {
+      x: e.clientX,
+      y: e.clientY,
+      
+    };
+     
     }
 
     if (draggingNodeId.current === null) return;
@@ -113,34 +112,43 @@ function App() {
     });
   };
 
-  const handleMouseUp = () => {
-    draggingNodeId.current = null;
-  };
 
 
-  const clickOutside=(e:any)=>{
-    console.log(e)
-    // draggingLineId.current=null
-    if(draggingLineId.current){
-      draggingLineId.current=null
+
+  const clickOutside = (e: any) => {
+    if (draggingLineId.current) {
+      draggingLineId.current = null
+    }
+    if(isPanning){
+      setIsPanning(false)
+       lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
     }
   }
 
   const hendleMouseDownOutside = (e: any) => {
     console.log(e)
-    if(draggingLineId.current){
-      // return draggingLineId.current=null   
-    }
+
     if (cursor === "pencil") {
       const newId = uuidv4();
       createPen({
         userId: 1,
         cordinate: [{ x: e.clientX, y: e.clientY }],
         color: "red",
-        id:newId
+        id: newId
       });
       draggingLineId.current = newId;
-      
+
+    }
+
+    if (cursor === "hand") {
+      setIsPanning(true)
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
     }
   };
 
@@ -183,39 +191,26 @@ function App() {
         style={{
           transform: `translate(${-camera.x}px, ${-camera.y}px) scale(${camera.zoom})`,
           transformOrigin: "0 0",
-          cursor: cursor === "pencil" ? "crosshair" : "default",
+          cursor: findForStyleCursor(cursor),
         }}
         onMouseMove={(e) => handleMouseMove(e)}
         onMouseDown={(e) => hendleMouseDownOutside(e)}
-        onClick={(e)=>clickOutside(e)}
+        onClick={(e) => clickOutside(e)}
       >
-        {nodes.map((el) => {
-          return (
-            <div
-              className="circle"
-              style={{
-                left: (el.x - camera.x) * camera.zoom,
-                top: (el.y - camera.y) * camera.zoom,
-              }}
-              key={el.id}
-              onClick={() => clickCircle(el)}
-              onMouseDown={(e) => handleMouseDown(el, e)}
-              onMouseUp={() => handleMouseUp()}
-            >
-              {el.count}
-            </div>
-          );
-        })}
+       <Nodes draggingNodeId={draggingNodeId}/>
         <svg className="svg" xmlns="http://www.w3.org/2000/svg">
           {edges.map((el) => {
             const from = nodes.find((n) => n.id === el.from) || { x: 0, y: 0 };
             const to = nodes.find((n) => n.id === el.to) || { x: 0, y: 0 };
+
+            const p1 = worldToScreen(from.x + cirlceRaduis / 2, from.y + cirlceRaduis / 2, camera);
+            const p2 = worldToScreen(to.x + cirlceRaduis / 2, to.y + cirlceRaduis / 2, camera);
             return (
               <line
-                x1={from.x + cirlceRaduis / 2}
-                y1={from.y + cirlceRaduis / 2}
-                x2={to.x + cirlceRaduis / 2}
-                y2={to.y + cirlceRaduis / 2}
+                x1={p1.x}
+                y1={p1.y}
+                x2={p2.x}
+                y2={p2.y}
                 className="stroke"
               />
             );

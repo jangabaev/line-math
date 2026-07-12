@@ -4,6 +4,7 @@ import {
   type Edge,
   type Line,
   type LineWithoutId,
+  type Camera
 } from "../types/index.js";
 
 export type Tool = "select" | "pencil" | "comment" | "hand" | "node";
@@ -13,11 +14,13 @@ interface CanvasStore {
   edges: Edge[];
   cursor: Tool;
   lines: Line[];
+  camera:Camera;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
   pencilMove: (e: { id: string; x: number; y: number }) => void;
   createPen: (e: Line) => void;
+  moveCamera:(e:Camera)=>void
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -33,6 +36,11 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   edges: [],
   lines: [],
   cursor: "pencil",
+  camera:{
+    x:0,
+    y:0,
+    zoom:1
+  },
   createNode: (node) =>
     set((state) => ({
       nodes: [...state.nodes, node],
@@ -58,4 +66,8 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     set((state) => ({
       lines: [...state.lines, e],
     })),
+
+    moveCamera:(e:Camera)=>set((state)=>({
+      camera:{...state.camera,...e}
+    }))
 }));
