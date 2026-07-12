@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { type Edge, type Node } from "./types/index.js";
 import { useCanvasStore } from "./store/useCanvasStore.js";
 import Panel from "./components/panel/index.js";
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const {
@@ -14,6 +15,7 @@ function App() {
     pencilMove,
     lines,
   } = useCanvasStore((state) => state);
+
 
   const [camera, setCamera] = useState({
     x: 0,
@@ -28,13 +30,15 @@ function App() {
     y: 0,
   });
   const draggingNodeId = useRef<number | null>(null);
-  const draggingLineId = useRef<number | null>(null);
+  const draggingLineId = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offset = useRef({ x: 0, y: 0 });
-
+  console.log(lines)
+  console.log(draggingLineId.current)
   const radius = 400;
   const cirlceRaduis = 50;
 
+   
   const clickCircle = (node: Node) => {
     const random = Math.floor(Math.random() * radius);
     const randmx = Math.floor(Math.random() * 100);
@@ -88,9 +92,13 @@ function App() {
       y: e.clientY - node.y,
     };
   };
+  
   const handleMouseMove = (e: any) => {
-    // console.log(e);
-    if (cursor === "pencil" && draggingLineId.current) {
+    
+    if (cursor === "pencil") {
+      console.log(e);
+    console.log(draggingLineId.current)
+    console.log(lines)
       return pencilMove({
         id: draggingLineId.current,
         x: e.clientX,
@@ -109,23 +117,40 @@ function App() {
       y: updatedY,
     });
   };
+
   const handleMouseUp = () => {
     draggingNodeId.current = null;
   };
 
+
+  const clickOutside=(e:any)=>{
+    console.log(e)
+    // draggingLineId.current=null
+    if(draggingLineId.current){
+      // draggingLineId.current=null
+    }
+  }
+
   const hendleMouseDownOutside = (e: any) => {
+    console.log(e)
+    if(draggingLineId.current){
+      // return draggingLineId.current=null   
+    }
     if (cursor === "pencil") {
+      const newId = uuidv4();
       createPen({
         userId: 1,
         cordinate: [{ x: e.clientX, y: e.clientY }],
         color: "red",
+        id:newId
       });
-      draggingLineId.current = lines.length;
+      draggingLineId.current = newId;
+      
     }
   };
 
   useEffect(() => {
-    draw();
+    
   }, [lines]);
 
   const draw = () => {
@@ -167,6 +192,7 @@ function App() {
         }}
         onMouseMove={(e) => handleMouseMove(e)}
         onMouseDown={(e) => hendleMouseDownOutside(e)}
+        onClick={(e)=>clickOutside(e)}
       >
         {nodes.map((el) => {
           return (

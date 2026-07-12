@@ -17,7 +17,7 @@ interface CanvasStore {
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
   pencilMove: (e: { id: number; x: number; y: number }) => void;
-  createPen: (e: LineWithoutId) => void;
+  createPen: (e: Line) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -46,16 +46,17 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
         return el;
       }),
     })),
-  pencilMove: (e) =>
-    set((state) => ({
+  pencilMove: (e) =>{
+    console.log(e)
+    return set((state) => ({
       lines: state.lines.map((el) =>
         el.userId === e.id
           ? { ...el, cordinate: [...el.cordinate, { x: e.x, y: e.y }] }
           : el,
       ),
-    })),
+    }))},
   createPen: (e) =>
     set((state) => ({
-      lines: [...state.lines, { ...e, id: state.lines.length || 0 }],
+      lines: [...state.lines, e],
     })),
 }));
