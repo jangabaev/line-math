@@ -32,9 +32,7 @@ function App() {
   const draggingNodeId = useRef<number | null>(null);
   const draggingLineId = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const offset = useRef({ x: 0, y: 0 });
-  console.log(lines)
-  console.log(draggingLineId.current)
+  const offset = useRef({ x: 0, y: 0 })
   const radius = 400;
   const cirlceRaduis = 50;
 
@@ -96,11 +94,8 @@ function App() {
   const handleMouseMove = (e: any) => {
     
     if (cursor === "pencil") {
-      console.log(e);
-    console.log(draggingLineId.current)
-    console.log(lines)
       return pencilMove({
-        id: draggingLineId.current,
+        id: draggingLineId.current??"",
         x: e.clientX,
         y: e.clientY,
       });
@@ -127,7 +122,7 @@ function App() {
     console.log(e)
     // draggingLineId.current=null
     if(draggingLineId.current){
-      // draggingLineId.current=null
+      draggingLineId.current=null
     }
   }
 
@@ -150,7 +145,7 @@ function App() {
   };
 
   useEffect(() => {
-    
+    draw()
   }, [lines]);
 
   const draw = () => {

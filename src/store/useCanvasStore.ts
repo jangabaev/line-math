@@ -16,7 +16,7 @@ interface CanvasStore {
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
-  pencilMove: (e: { id: number; x: number; y: number }) => void;
+  pencilMove: (e: { id: string; x: number; y: number }) => void;
   createPen: (e: Line) => void;
 }
 
@@ -47,10 +47,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     })),
   pencilMove: (e) =>{
-    console.log(e)
-    return set((state) => ({
+    set((state) => ({
       lines: state.lines.map((el) =>
-        el.userId === e.id
+        el.id == e.id
           ? { ...el, cordinate: [...el.cordinate, { x: e.x, y: e.y }] }
           : el,
       ),
