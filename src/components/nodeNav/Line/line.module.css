@@ -1,0 +1,54 @@
+.color{
+    background-color: aquamarine;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.color:first-child{
+    background-color: blue;
+}
+
+.color:nth-child(2){
+    background-color: black;
+}
+
+.color:nth-child(3){
+    background-color: red;
+}
+
+.color:nth-child(4){
+    background-color: orange;
+}
+
+.color:nth-child(5){
+    background-color: green;
+}
+
+.colors{
+    display: flex;
+    justify-content: space-between;
+}
+
+.line{
+    height: 24px;
+    width: 2px;
+    background-color: rgb(138, 135, 135);
+}
+
+.color:hover{
+    transform: scale(1.2);
+}
+
+.color_choose{
+    background-color: black;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border-radius: 5px; 
+}
+
+.color_choose:hover{
+    transform: scale(1.2);
+}

@@ -3,15 +3,13 @@ import { type Edge, type Node } from "./types/index.js";
 import { useCanvasStore } from "./store/useCanvasStore.js";
 import Panel from "./components/panel/index.js";
 import { v4 as uuidv4 } from 'uuid';
-import { worldToScreen } from "./utils/camera.js";
 import { findForStyleCursor } from "./utils/cursor.js";
 import Nodes from "./components/nodes/index.js";
+import Edges from "./components/edges/index.js";
+import SettingsFigure from "./components/nodeNav/index.js";
 
 function App() {
   const {
-    nodes,
-    edges,
-    createNode,
     moveNodes,
     cursor,
     createPen,
@@ -32,7 +30,7 @@ function App() {
   console.log(lastPoint.current)
   const draggingNodeId = useRef<number | null>(null);
 
-  
+
   const draggingLineId = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offset = useRef({ x: 0, y: 0 })
@@ -86,18 +84,18 @@ function App() {
     }
 
     if (cursor === "hand" && isPanning) {
-     
-    const dx = e.clientX - lastMouse.current.x;
+
+      const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
 
       moveCamera({ x: dx, y: dy, zoom: camera.zoom });
-      
- lastMouse.current = {
-      x: e.clientX,
-      y: e.clientY,
-      
-    };
-     
+
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+
+      };
+
     }
 
     if (draggingNodeId.current === null) return;
@@ -119,9 +117,9 @@ function App() {
     if (draggingLineId.current) {
       draggingLineId.current = null
     }
-    if(isPanning){
+    if (isPanning) {
       setIsPanning(false)
-       lastMouse.current = {
+      lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
       };
@@ -184,6 +182,8 @@ function App() {
       ctx.stroke();
     }
   };
+
+
   return (
     <main>
       <div
@@ -197,37 +197,12 @@ function App() {
         onMouseDown={(e) => hendleMouseDownOutside(e)}
         onClick={(e) => clickOutside(e)}
       >
-       <Nodes draggingNodeId={draggingNodeId}/>
-        <svg className="svg" xmlns="http://www.w3.org/2000/svg">
-          {edges.map((el) => {
-            const from = nodes.find((n) => n.id === el.from) || { x: 0, y: 0 };
-            const to = nodes.find((n) => n.id === el.to) || { x: 0, y: 0 };
+        {/* bul deneler */}
+        <Nodes draggingNodeId={draggingNodeId} />
+        {/* bul siziqlar */}
+        <Edges cirlceRaduis={cirlceRaduis} />
 
-            const p1 = worldToScreen(from.x + cirlceRaduis / 2, from.y + cirlceRaduis / 2, camera);
-            const p2 = worldToScreen(to.x + cirlceRaduis / 2, to.y + cirlceRaduis / 2, camera);
-            return (
-              <line
-                x1={p1.x}
-                y1={p1.y}
-                x2={p2.x}
-                y2={p2.y}
-                className="stroke"
-              />
-            );
-          })}
-          {/* pencil's treactory with svg */}
-          {/* {lines.map((el) => {
-            const d = el.cordinate
-              .map((point, index) =>
-                index === 0
-                  ? `M ${point.x} ${point.y}`
-                  : `L ${point.x} ${point.y}`,
-              )
-              .join(" ");
-            return <path d={d} stroke="black" strokeWidth={3} fill="none" />;
-          })} */}
-        </svg>
-
+        {/* for pen */}
         <canvas
           ref={canvasRef}
           width={window.innerWidth}
@@ -236,6 +211,7 @@ function App() {
         />
       </div>
       <Panel />
+      <SettingsFigure/>
     </main>
   );
 }
