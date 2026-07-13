@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { type Edge, type Node } from "./types/index.js";
 import { useCanvasStore } from "./store/useCanvasStore.js";
 import Panel from "./components/panel/index.js";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { worldToScreen } from "./utils/camera.js";
 import { findForStyleCursor } from "./utils/cursor.js";
 import Nodes from "./components/nodes/index.js";
@@ -18,9 +18,9 @@ function App() {
     pencilMove,
     lines,
     camera,
-    moveCamera
+    moveCamera,
   } = useCanvasStore((state) => state);
-  console.log(camera)
+  console.log(camera);
 
   const [isPanning, setIsPanning] = useState(false);
 
@@ -29,14 +29,12 @@ function App() {
     y: 0,
   });
 
-  console.log(lastPoint.current)
+  console.log(lastPoint.current);
   const draggingNodeId = useRef<number | null>(null);
 
-  
   const draggingLineId = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const offset = useRef({ x: 0, y: 0 })
-
+  const offset = useRef({ x: 0, y: 0 });
 
   const lastMouse = useRef({
     x: 0,
@@ -44,9 +42,6 @@ function App() {
   });
   const radius = 400;
   const cirlceRaduis = 50;
-
-
-
 
   const handleMouseDown = (node: Node, e: any) => {
     if (e.target !== e.currentTarget) return;
@@ -76,7 +71,6 @@ function App() {
   };
 
   const handleMouseMove = (e: any) => {
-
     if (cursor === "pencil") {
       return pencilMove({
         id: draggingLineId.current ?? "",
@@ -86,24 +80,25 @@ function App() {
     }
 
     if (cursor === "hand" && isPanning) {
-     
-    const dx = e.clientX - lastMouse.current.x;
+      const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
 
-      moveCamera({ x: dx, y: dy, zoom: camera.zoom });
-      
- lastMouse.current = {
-      x: e.clientX,
-      y: e.clientY,
-      
-    };
-     
+      moveCamera({
+        x: camera.x - dx,
+        y: camera.y - dy,
+        zoom: camera.zoom,
+      });
+
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
     }
 
     if (draggingNodeId.current === null) return;
 
-    const updatedX = e.clientX - offset.current.x;
-    const updatedY = e.clientY - offset.current.y;
+    const updatedX = (e.clientX + camera.x) / camera.zoom;
+    const updatedY = (e.clientY + camera.y) / camera.zoom;
 
     moveNodes({
       id: draggingNodeId.current,
@@ -112,24 +107,17 @@ function App() {
     });
   };
 
-
-
-
   const clickOutside = (e: any) => {
     if (draggingLineId.current) {
-      draggingLineId.current = null
+      draggingLineId.current = null;
     }
-    if(isPanning){
-      setIsPanning(false)
-       lastMouse.current = {
-        x: e.clientX,
-        y: e.clientY,
-      };
+    if (isPanning) {
+      setIsPanning(false);
     }
-  }
+  };
 
   const hendleMouseDownOutside = (e: any) => {
-    console.log(e)
+    console.log(e);
 
     if (cursor === "pencil") {
       const newId = uuidv4();
@@ -137,14 +125,13 @@ function App() {
         userId: 1,
         cordinate: [{ x: e.clientX, y: e.clientY }],
         color: "red",
-        id: newId
+        id: newId,
       });
       draggingLineId.current = newId;
-
     }
 
     if (cursor === "hand") {
-      setIsPanning(true)
+      setIsPanning(true);
       lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
@@ -153,7 +140,7 @@ function App() {
   };
 
   useEffect(() => {
-    draw()
+    draw();
   }, [lines]);
 
   const draw = () => {
@@ -197,14 +184,22 @@ function App() {
         onMouseDown={(e) => hendleMouseDownOutside(e)}
         onClick={(e) => clickOutside(e)}
       >
-       <Nodes draggingNodeId={draggingNodeId}/>
+        <Nodes draggingNodeId={draggingNodeId} />
         <svg className="svg" xmlns="http://www.w3.org/2000/svg">
           {edges.map((el) => {
             const from = nodes.find((n) => n.id === el.from) || { x: 0, y: 0 };
             const to = nodes.find((n) => n.id === el.to) || { x: 0, y: 0 };
 
-            const p1 = worldToScreen(from.x + cirlceRaduis / 2, from.y + cirlceRaduis / 2, camera);
-            const p2 = worldToScreen(to.x + cirlceRaduis / 2, to.y + cirlceRaduis / 2, camera);
+            const p1 = worldToScreen(
+              from.x + cirlceRaduis / 2,
+              from.y + cirlceRaduis / 2,
+              camera,
+            );
+            const p2 = worldToScreen(
+              to.x + cirlceRaduis / 2,
+              to.y + cirlceRaduis / 2,
+              camera,
+            );
             return (
               <line
                 x1={p1.x}
@@ -215,17 +210,6 @@ function App() {
               />
             );
           })}
-          {/* pencil's treactory with svg */}
-          {/* {lines.map((el) => {
-            const d = el.cordinate
-              .map((point, index) =>
-                index === 0
-                  ? `M ${point.x} ${point.y}`
-                  : `L ${point.x} ${point.y}`,
-              )
-              .join(" ");
-            return <path d={d} stroke="black" strokeWidth={3} fill="none" />;
-          })} */}
         </svg>
 
         <canvas
