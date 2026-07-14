@@ -87,7 +87,7 @@ const Scane = () => {
         y: e.clientY,
       };
     }
-
+    // ssd
     if (draggingNodeId.current === null) return;
 
     const updatedX = e.clientX - offset.current.x;
