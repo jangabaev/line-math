@@ -6,6 +6,7 @@ import Nodes from "../nodes/index.js";
 import Edges from "../edges/index.js";
 import type { Node } from "../../types/index.js";
 import { findForStyleCursor } from "../../utils/cursor.js";
+import { screenToWorld } from "../../utils/camera.js";
 
 const Scane = () => {
   const {
@@ -17,7 +18,6 @@ const Scane = () => {
     camera,
     moveCamera,
   } = useCanvasStore((state) => state);
-  console.log(camera);
 
   const [isPanning, setIsPanning] = useState(false);
 
@@ -71,8 +71,8 @@ const Scane = () => {
     if (cursor === "pencil") {
       return pencilMove({
         id: draggingLineId.current ?? "",
-        x: e.clientX,
-        y: e.clientY,
+        x: e.clientX + camera.x,
+        y: e.clientY + camera.y,
       });
     }
 
@@ -114,9 +114,10 @@ const Scane = () => {
 
     if (cursor === "pencil") {
       const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
       createPen({
         userId: 1,
-        cordinate: [{ x: e.clientX, y: e.clientY }],
+        cordinate: [p],
         color: "red",
         id: newId,
       });
