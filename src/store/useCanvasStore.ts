@@ -74,5 +74,5 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       camera: { ...state.camera, ...e },
     })),
 
-  changeCursor: (e: Tool) => set((state) => ({ cursor: e })),
+  changeCursor: (e: Tool) => set(() => ({ cursor: e })),
 }));

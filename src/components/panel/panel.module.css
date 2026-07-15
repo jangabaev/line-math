@@ -1,7 +1,7 @@
 .panel{
     background-color: rgb(255, 255, 255);
     width: 70vw;
-    height: 60px;
+    height: 7vh;
     position: fixed;
     bottom: 50px;
     left: 50%;
@@ -15,8 +15,8 @@
 
 .panel>div{
     background-color: white;
-    width: 40px;
-    height: 40px;
+    width: 3vw;
+    height: 5vh;
     font-size: 20px;
     display: flex;
     align-items: center;
