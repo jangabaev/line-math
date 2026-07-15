@@ -6,7 +6,7 @@ import Nodes from "../nodes/index.js";
 import Edges from "../edges/index.js";
 import type { Node } from "../../types/index.js";
 import { findForStyleCursor } from "../../utils/cursor.js";
-import { screenToWorld } from "../../utils/camera.js";
+import { screenToWorld, worldToScreen } from "../../utils/camera.js";
 
 const Scane = () => {
   const {
@@ -135,7 +135,27 @@ const Scane = () => {
 
   useEffect(() => {
     draw();
-  }, [lines]);
+  }, [lines, camera]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      draw();
+    };
+
+    resize();
+
+    window.addEventListener("resize", resize);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   const draw = () => {
     const canvas = canvasRef.current;
@@ -156,10 +176,22 @@ const Scane = () => {
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
-      ctx.moveTo(line.cordinate[0].x, line.cordinate[0].y);
+      const first = worldToScreen(
+        line.cordinate[0].x,
+        line.cordinate[0].y,
+        camera,
+      );
+
+      ctx.moveTo(first.x, first.y);
 
       for (let i = 1; i < line.cordinate.length; i++) {
-        ctx.lineTo(line.cordinate[i].x, line.cordinate[i].y);
+        const p = worldToScreen(
+          line.cordinate[i].x,
+          line.cordinate[i].y,
+          camera,
+        );
+
+        ctx.lineTo(p.x, p.y);
       }
 
       ctx.stroke();
@@ -169,8 +201,6 @@ const Scane = () => {
     <div
       className="canvas"
       style={{
-        transform: `translate(${-camera.x}px, ${-camera.y}px) scale(${camera.zoom})`,
-        transformOrigin: "0 0",
         cursor: findForStyleCursor(cursor),
       }}
       onMouseMove={(e) => handleMouseMove(e)}
@@ -184,12 +214,7 @@ const Scane = () => {
       <Edges cirlceRaduis={cirlceRaduis} />
 
       {/* for pen */}
-      <canvas
-        ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight}
-        className="canvas"
-      />
+      <canvas ref={canvasRef} className="pen-canvas" />
     </div>
   );
 };

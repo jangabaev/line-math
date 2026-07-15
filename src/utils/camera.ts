@@ -1,13 +1,27 @@
-import { type Camera } from "../types/index.js";
-
-export function worldToScreen(x: number, y: number, camera: Camera) {
+export function worldToScreen(
+  x: number,
+  y: number,
+  camera: {
+    x: number;
+    y: number;
+    zoom: number;
+  },
+) {
   return {
-    x: x * camera.zoom,
-    y: y * camera.zoom,
+    x: (x - camera.x) * camera.zoom,
+    y: (y - camera.y) * camera.zoom,
   };
 }
 
-export function screenToWorld(x: number, y: number, camera: Camera) {
+export function screenToWorld(
+  x: number,
+  y: number,
+  camera: {
+    x: number;
+    y: number;
+    zoom: number;
+  },
+) {
   return {
     x: x / camera.zoom + camera.x,
     y: y / camera.zoom + camera.y,
