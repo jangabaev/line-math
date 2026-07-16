@@ -5,6 +5,7 @@ import {
   type Line,
   type LineWithoutId,
   type Camera,
+  type LineStart,
 } from "../types/index.js";
 
 export type Tool = "select" | "pencil" | "comment" | "hand" | "node";
@@ -15,6 +16,7 @@ interface CanvasStore {
   cursor: Tool;
   lines: Line[];
   camera: Camera;
+  startLine: LineStart;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
@@ -22,6 +24,7 @@ interface CanvasStore {
   createPen: (e: Line) => void;
   moveCamera: (e: Camera) => void;
   changeCursor: (e: Tool) => void;
+  setLineStyle: (e: LineStart) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -37,6 +40,14 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   edges: [],
   lines: [],
   cursor: "hand",
+  startLine: {
+    width: 3,
+    color: "#000000",
+    fill: "pattern",
+    pressure: "constant",
+    opacity: 1,
+    background: "#000000",
+  },
   camera: {
     x: 0,
     y: 0,
@@ -75,4 +86,8 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     })),
 
   changeCursor: (e: Tool) => set(() => ({ cursor: e })),
+  setLineStyle: (e: LineStart) =>
+    set((state) => ({
+      startLine: { ...state.startLine, ...e },
+    })),
 }));

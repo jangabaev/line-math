@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import Nodes from "../nodes/index.js";
 import Edges from "../edges/index.js";
+import Lines from "../lines/index.js";
 import type { Node } from "../../types/index.js";
 import { findForStyleCursor } from "../../utils/cursor.js";
 import { screenToWorld, worldToScreen } from "../../utils/camera.js";
@@ -14,9 +15,9 @@ const Scane = () => {
     cursor,
     createPen,
     pencilMove,
-    lines,
     camera,
     moveCamera,
+    startLine,
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -30,7 +31,6 @@ const Scane = () => {
   const draggingNodeId = useRef<number | null>(null);
 
   const draggingLineId = useRef<string | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const offset = useRef({ x: 0, y: 0 });
 
   const lastMouse = useRef({
@@ -39,33 +39,6 @@ const Scane = () => {
   });
   const radius = 400;
   const cirlceRaduis = 50;
-
-  const handleMouseDown = (node: Node, e: any) => {
-    if (e.target !== e.currentTarget) return;
-
-    if (cursor === "pencil") {
-    }
-
-    setIsPanning(true);
-
-    lastPoint.current = {
-      x: e.clientX,
-      y: e.clientY,
-    };
-
-    if (draggingNodeId.current) {
-      return (draggingNodeId.current = null);
-    }
-
-    e.stopPropagation(); // Hodisa boshqa elementlarga o'tib ketmasligi uchun
-    draggingNodeId.current = node.id;
-
-    // Sichqoncha nodening aynan qayeridan bosilganini aniqlash
-    offset.current = {
-      x: e.clientX - node.x,
-      y: e.clientY - node.y,
-    };
-  };
 
   const handleMouseMove = (e: any) => {
     if (cursor === "pencil") {
@@ -118,8 +91,9 @@ const Scane = () => {
       createPen({
         userId: 1,
         cordinate: [p],
-        color: "red",
+        color: startLine.color,
         id: newId,
+        width: startLine.width,
       });
       draggingLineId.current = newId;
     }
@@ -133,70 +107,6 @@ const Scane = () => {
     }
   };
 
-  useEffect(() => {
-    draw();
-  }, [lines, camera]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      draw();
-    };
-
-    resize();
-
-    window.addEventListener("resize", resize);
-
-    return () => {
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  const draw = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for (const line of lines) {
-      if (line.cordinate.length < 2) continue;
-
-      ctx.beginPath();
-
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = 3;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      const first = worldToScreen(
-        line.cordinate[0].x,
-        line.cordinate[0].y,
-        camera,
-      );
-
-      ctx.moveTo(first.x, first.y);
-
-      for (let i = 1; i < line.cordinate.length; i++) {
-        const p = worldToScreen(
-          line.cordinate[i].x,
-          line.cordinate[i].y,
-          camera,
-        );
-
-        ctx.lineTo(p.x, p.y);
-      }
-
-      ctx.stroke();
-    }
-  };
   return (
     <div
       className="canvas"
@@ -214,7 +124,7 @@ const Scane = () => {
       <Edges cirlceRaduis={cirlceRaduis} />
 
       {/* for pen */}
-      <canvas ref={canvasRef} className="pen-canvas" />
+      <Lines />
     </div>
   );
 };

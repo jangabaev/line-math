@@ -6,26 +6,6 @@
     border-radius: 5px;
 }
 
-.color:first-child{
-    background-color: blue;
-}
-
-.color:nth-child(2){
-    background-color: black;
-}
-
-.color:nth-child(3){
-    background-color: red;
-}
-
-.color:nth-child(4){
-    background-color: orange;
-}
-
-.color:nth-child(5){
-    background-color: green;
-}
-
 .colors{
     display: flex;
     justify-content: space-between;

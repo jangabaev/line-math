@@ -4,7 +4,7 @@
   box-sizing: border-box;
  }
 
- :root {
+:root {
   --color-alpha: lightcyan;
   --color-beta: cyan;
   --color-gamma: indigo;
