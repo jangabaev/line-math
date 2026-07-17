@@ -27,7 +27,7 @@ const Scane = () => {
     y: 0,
   });
 
-  console.log(lastPoint.current);
+  // console.log(lastPoint.current);
   const draggingNodeId = useRef<number | null>(null);
 
   const draggingLineId = useRef<string | null>(null);
@@ -41,6 +41,17 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
+    if (e.buttons === 4) {
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+
+      moveCamera({ x: camera.x - dx, y: camera.y - dy, zoom: camera.zoom });
+
+      return (lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
     if (cursor === "pencil") {
       return pencilMove({
         id: draggingLineId.current ?? "",
@@ -74,6 +85,7 @@ const Scane = () => {
   };
 
   const clickOutside = (e: any) => {
+    console.log(e);
     if (draggingLineId.current) {
       draggingLineId.current = null;
     }
@@ -83,7 +95,14 @@ const Scane = () => {
   };
 
   const hendleMouseDownOutside = (e: any) => {
-    console.log(e);
+    // console.log(e);
+    if (e.button === 1) {
+      setIsPanning(true);
+      return (lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
 
     if (cursor === "pencil") {
       const newId = uuidv4();
