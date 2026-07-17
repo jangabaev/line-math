@@ -18,16 +18,10 @@ const Scane = () => {
     camera,
     moveCamera,
     startLine,
+    setSelected
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
-
-  const lastPoint = useRef({
-    x: 0,
-    y: 0,
-  });
-
-  // console.log(lastPoint.current);
   const draggingNodeId = useRef<number | null>(null);
 
   const draggingLineId = useRef<string | null>(null);
@@ -41,16 +35,22 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
-    if (e.buttons === 4) {
-      const dx = e.clientX - lastMouse.current.x;
-      const dy = e.clientY - lastMouse.current.y;
+    if (  isPanning) {
+     const dx = e.clientX - lastMouse.current.x;
+    const dy = e.clientY - lastMouse.current.y;
 
-      moveCamera({ x: camera.x - dx, y: camera.y - dy, zoom: camera.zoom });
+    moveCamera({
+      x: camera.x - dx,
+      y: camera.y - dy,
+      zoom: camera.zoom,
+    });
 
-      return (lastMouse.current = {
-        x: e.clientX,
-        y: e.clientY,
-      });
+    lastMouse.current = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+
+    return;
     }
     if (cursor === "pencil") {
       return pencilMove({
@@ -84,24 +84,17 @@ const Scane = () => {
     });
   };
 
-  const clickOutside = (e: any) => {
-    console.log(e);
-    if (draggingLineId.current) {
-      draggingLineId.current = null;
-    }
-    if (isPanning) {
-      setIsPanning(false);
-    }
-  };
 
   const hendleMouseDownOutside = (e: any) => {
-    // console.log(e);
+    setSelected(true)
     if (e.button === 1) {
       setIsPanning(true);
+      
       return (lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
       });
+      
     }
 
     if (cursor === "pencil") {
@@ -126,6 +119,16 @@ const Scane = () => {
     }
   };
 
+  const handleMouseUp=(e:any)=>{
+    console.log(e);
+    setSelected(false)
+    if (draggingLineId.current) {
+      draggingLineId.current = null;
+    }
+    if (isPanning) {
+      setIsPanning(false);
+    }
+  }
   return (
     <div
       className="canvas"
@@ -134,7 +137,7 @@ const Scane = () => {
       }}
       onMouseMove={(e) => handleMouseMove(e)}
       onMouseDown={(e) => hendleMouseDownOutside(e)}
-      onClick={(e) => clickOutside(e)}
+      onMouseUp={(e)=>handleMouseUp(e)}
     >
       {/* bul deneler */}
       <Nodes draggingNodeId={draggingNodeId} />

@@ -17,6 +17,7 @@ interface CanvasStore {
   lines: Line[];
   camera: Camera;
   startLine: LineStart;
+  selected: boolean;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
@@ -25,6 +26,7 @@ interface CanvasStore {
   moveCamera: (e: Camera) => void;
   changeCursor: (e: Tool) => void;
   setLineStyle: (e: LineStart) => void;
+  setSelected: (e: boolean) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -53,6 +55,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     y: 0,
     zoom: 1,
   },
+  selected: false,
   createNode: (node) =>
     set((state) => ({
       nodes: [...state.nodes, node],
@@ -89,5 +92,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   setLineStyle: (e: LineStart) =>
     set((state) => ({
       startLine: { ...state.startLine, ...e },
+    })),
+  setSelected: (e: boolean) =>
+    set(() => ({
+      selected: e,
     })),
 }));
