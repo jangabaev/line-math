@@ -4,6 +4,7 @@ export interface Line {
   color: string;
   id: string;
   width: number;
+  opacity: number;
 }
 
 type ColorLine = "#1212e6" | "#000000" | "#ff0000" | "#ff9500" | "#008000";

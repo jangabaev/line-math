@@ -18,7 +18,8 @@ const Scane = () => {
     camera,
     moveCamera,
     startLine,
-    setSelected
+    setSelected,
+    selected,
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -35,22 +36,22 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
-    if (  isPanning) {
-     const dx = e.clientX - lastMouse.current.x;
-    const dy = e.clientY - lastMouse.current.y;
+    if (isPanning) {
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
 
-    moveCamera({
-      x: camera.x - dx,
-      y: camera.y - dy,
-      zoom: camera.zoom,
-    });
+      moveCamera({
+        x: camera.x - dx,
+        y: camera.y - dy,
+        zoom: camera.zoom,
+      });
 
-    lastMouse.current = {
-      x: e.clientX,
-      y: e.clientY,
-    };
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
 
-    return;
+      return;
     }
     if (cursor === "pencil") {
       return pencilMove({
@@ -60,16 +61,16 @@ const Scane = () => {
       });
     }
 
-    if (cursor === "hand" && isPanning) {
+    if (cursor === "grab" && isPanning) {
       const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
 
       moveCamera({ x: camera.x - dx, y: camera.y - dy, zoom: camera.zoom });
 
-      lastMouse.current = {
+      return (lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
-      };
+      });
     }
     // ssd
     if (draggingNodeId.current === null) return;
@@ -84,17 +85,14 @@ const Scane = () => {
     });
   };
 
-
   const hendleMouseDownOutside = (e: any) => {
-    setSelected(true)
     if (e.button === 1) {
       setIsPanning(true);
-      
+      setSelected(true);
       return (lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
       });
-      
     }
 
     if (cursor === "pencil") {
@@ -106,38 +104,40 @@ const Scane = () => {
         color: startLine.color,
         id: newId,
         width: startLine.width,
+        opacity: startLine.opacity,
       });
       draggingLineId.current = newId;
     }
 
-    if (cursor === "hand") {
+    if (cursor === "grab") {
       setIsPanning(true);
-      lastMouse.current = {
+      setSelected(true);
+      return (lastMouse.current = {
         x: e.clientX,
         y: e.clientY,
-      };
+      });
     }
   };
 
-  const handleMouseUp=(e:any)=>{
+  const handleMouseUp = (e: any) => {
     console.log(e);
-    setSelected(false)
+    setSelected(false);
     if (draggingLineId.current) {
       draggingLineId.current = null;
     }
     if (isPanning) {
       setIsPanning(false);
     }
-  }
+  };
   return (
     <div
       className="canvas"
       style={{
-        cursor: findForStyleCursor(cursor),
+        cursor: findForStyleCursor(selected ? "grabbing" : cursor),
       }}
       onMouseMove={(e) => handleMouseMove(e)}
       onMouseDown={(e) => hendleMouseDownOutside(e)}
-      onMouseUp={(e)=>handleMouseUp(e)}
+      onMouseUp={(e) => handleMouseUp(e)}
     >
       {/* bul deneler */}
       <Nodes draggingNodeId={draggingNodeId} />

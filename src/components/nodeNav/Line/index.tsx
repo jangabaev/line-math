@@ -1,6 +1,7 @@
 import { useCanvasStore } from "../../../store/useCanvasStore.js";
 import type { LineStart } from "../../../types/line.js";
 import ButtonIcon from "../../ui/buttonIcon/button.js";
+import RangeInput from "../../ui/range/range.js";
 import style from "./line.module.css";
 // bul sizlarg'a ren beriw qalinliq sol zatlardi ozgartiw
 
@@ -24,6 +25,15 @@ const LineDesign = () => {
         ></div>
       </div>
 
+      <div className={style.range}>
+        <RangeInput
+          label="opacity"
+          defaultValue={startLine.opacity * 100}
+          onChange={(e) =>
+            setLineStyle({ ...startLine, opacity: Math.floor(e / 10) / 10 })
+          }
+        />
+      </div>
       <ButtonIcon>r</ButtonIcon>
     </>
   );

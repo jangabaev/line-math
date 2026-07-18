@@ -68,6 +68,12 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
               left: cordinate.x,
               top: cordinate.y,
               transform: `scale()`,
+              pointerEvents:
+                cursor === "grab" ||
+                cursor === "grabbing" ||
+                cursor === "pencil"
+                  ? "none"
+                  : "all",
             }}
             key={el.id}
             onClick={() => clickCircle(el)}

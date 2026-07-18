@@ -8,7 +8,14 @@ import {
   type LineStart,
 } from "../types/index.js";
 
-export type Tool = "select" | "pencil" | "comment" | "hand" | "node";
+export type Tool =
+  | "select"
+  | "pencil"
+  | "comment"
+  | "hand"
+  | "node"
+  | "grab"
+  | "grabbing";
 
 interface CanvasStore {
   nodes: Node[];

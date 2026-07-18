@@ -32,3 +32,7 @@
 .color_choose:hover{
     transform: scale(1.2);
 }
+
+.range{
+    margin-top: 15px;
+}

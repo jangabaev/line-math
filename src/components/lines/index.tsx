@@ -6,7 +6,7 @@ import style from "./line.module.css";
 const Lines = () => {
   const { lines, camera, startLine } = useCanvasStore((state) => state);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  console.log(lines);
   useEffect(() => {
     draw();
   }, [lines, camera]);
@@ -47,6 +47,7 @@ const Lines = () => {
 
       ctx.strokeStyle = line.color;
       ctx.lineWidth = line.width;
+      ctx.globalAlpha = line.opacity;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
