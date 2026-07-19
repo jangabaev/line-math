@@ -34,7 +34,12 @@ const LineDesign = () => {
           }
         />
       </div>
-      <ButtonIcon>r</ButtonIcon>
+      <p className={style.text}>Stroke width</p>
+      <div className={style.width}>
+      <ButtonIcon onClick={()=>setLineStyle({ ...startLine, width: 1 })}><span className={style.strokeLine1}></span></ButtonIcon>
+      <ButtonIcon  onClick={()=>setLineStyle({ ...startLine, width: 3 })}><span className={style.strokeLine2}></span></ButtonIcon>
+      <ButtonIcon onClick={()=>setLineStyle({ ...startLine, width: 5 })}><span className={style.strokeLine3}></span></ButtonIcon>
+      </div>
     </>
   );
 };

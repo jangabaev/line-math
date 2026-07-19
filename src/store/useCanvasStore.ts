@@ -50,7 +50,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   lines: [],
   cursor: "hand",
   startLine: {
-    width: 3,
+    width: 1,
     color: "#000000",
     fill: "pattern",
     pressure: "constant",
