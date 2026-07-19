@@ -16,23 +16,7 @@
   cursor: pointer;
 }
 
-.value {
-  min-width: 74px;
-  padding: 9px 14px;
-  color: #ffffff;
-  font-size: 17px;
-  font-weight: 700;
-  text-align: center;
-  background: linear-gradient(135deg, #000000, #090909);
-  border-radius: 12px;
-}
 
-.value span {
-  margin-left: 2px;
-  font-size: 12px;
-  font-weight: 500;
-  opacity: 0.8;
-}
 
 .rangeWrapper {
   width: 100%;
@@ -102,6 +86,11 @@
   color: #000000;
   font-size: 13px;
   font-weight: 500;
+  position: relative;
+}
+
+.value{
+  position: absolute;
 }
 
 @media (max-width: 500px) {

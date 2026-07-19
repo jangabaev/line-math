@@ -27,7 +27,7 @@ const RangeInput = ({
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(event.target.value);
 
-    setValue(newValue);
+    setValue(Math.floor(newValue / 10) * 10);
     onChange?.(newValue);
   };
 
@@ -62,7 +62,12 @@ const RangeInput = ({
 
         <div className={styles.rangeInfo}>
           <span>{min}</span>
-          <span>{max}</span>
+          <span
+            style={{ left: `${value}%`, transform: `translateX(-${value}%)` }}
+            className={styles.value}
+          >
+            {value}
+          </span>
         </div>
       </div>
     </div>
