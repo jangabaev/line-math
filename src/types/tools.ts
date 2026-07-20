@@ -7,4 +7,5 @@ export type Tool =
   | "grab"
   | "grabbing"
   | "triangle"
-  | "rectangle";
+  | "rectangle"
+  | "line";

@@ -17,4 +17,17 @@ export interface Rectangle {
   context: any;
 }
 
-export type Node = Rectangle | Element;
+export interface Line {
+  id: string;
+  type: "line";
+  x: number;
+  y: number;
+  endX: number;
+  endY: number;
+  pointCenter: {
+    x: number;
+    y: number;
+  }[];
+}
+
+export type Node = Rectangle | Element | Line;

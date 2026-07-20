@@ -21,6 +21,9 @@ const Scane = () => {
     setSelected,
     selected,
     setDrawing,
+    setLineCreate,
+    setLine,
+    nodes,
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -37,6 +40,13 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
+    if (cursor === "line") {
+      setLine({
+        id: draggingLineId.current,
+        endX: e.clientX + camera.x,
+        endY: e.clientY + camera.y,
+      });
+    }
     if (isPanning) {
       const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
@@ -73,6 +83,7 @@ const Scane = () => {
         y: e.clientY,
       });
     }
+
     // ssd
     if (draggingNodeId.current === null) return;
 
@@ -119,6 +130,21 @@ const Scane = () => {
         x: e.clientX,
         y: e.clientY,
       });
+    }
+
+    if (cursor === "line") {
+      const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      setLineCreate({
+        id: newId,
+        type: "line",
+        x: p.x,
+        y: p.y,
+        endX: p.x,
+        endY: p.y,
+        pointCenter: [],
+      });
+      draggingLineId.current = newId;
     }
   };
 

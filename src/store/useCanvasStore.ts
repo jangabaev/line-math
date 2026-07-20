@@ -28,6 +28,8 @@ interface CanvasStore {
   setLineStyle: (e: LineStart) => void;
   setSelected: (e: boolean) => void;
   setDrawing: (e: boolean) => void;
+  setLineCreate: (e: Node) => void;
+  setLine: (e: any) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -104,4 +106,19 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     set(() => ({
       isDrawing: e,
     })),
+  setLineCreate: (e: Node) => {
+    set((state) => ({
+      nodes: [...state.nodes, e],
+    }));
+  },
+  setLine: (e: Node) => {
+    set((state) => ({
+      nodes: state.nodes.map((el) => {
+        if (el.id === e.id) {
+          return { ...el, ...e };
+        }
+        return el;
+      }),
+    }));
+  },
 }));

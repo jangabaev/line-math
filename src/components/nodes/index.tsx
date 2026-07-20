@@ -1,8 +1,9 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import type { Node } from "../../types/index.js";
 import { worldToScreen } from "../../utils/camera.js";
+import type { Line } from "../../types/nodes.js";
 
 interface ChildProps {
   draggingNodeId: RefObject<number | null>;
@@ -30,6 +31,7 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
           : node.y + Math.sqrt(radius ** 2 - random ** 2),
       id: (nodes.length > 0 ? nodes[nodes.length - 1]!.id : 0) + 1,
       count: 0,
+      type: "line",
     });
 
     // setLines((el) => {
@@ -57,10 +59,14 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
     e.stopPropagation();
     draggingNodeId.current = node.id;
   };
+
   return (
     <>
       {nodes.map((el) => {
         const cordinate = worldToScreen(el.x, el.y, camera);
+        if (el.type === "line") {
+          return null;
+        }
         return (
           <div
             className="circle"

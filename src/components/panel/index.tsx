@@ -6,6 +6,7 @@ import Grab from "./cursors/grab/index.js";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import Zoom from "./zoom/index.js";
 import Rectangle from "./cursors/rectangle/index.js";
+import Line from "./cursors/line/index.js";
 
 const Panel = () => {
   const { changeCursor, selected, isDrawing } = useCanvasStore(
@@ -20,6 +21,7 @@ const Panel = () => {
       <Hand changeCursor={changeCursor} />
       <Grab changeCursor={changeCursor} />
       <Rectangle changeCursor={changeCursor} />
+      <Line changeCursor={changeCursor} />
       <Zoom />
     </div>
   );
