@@ -1,7 +1,7 @@
 import { FaPen } from "react-icons/fa";
 
 import style from "./pen.module.css";
-import type { Tool } from "../../../../store/useCanvasStore.js";
+import type { Tool } from "../../../../types/index.js";
 
 interface IPen {
   changeCursor: (pen: Tool) => void;

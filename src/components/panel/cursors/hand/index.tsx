@@ -1,5 +1,5 @@
 import { FaRegHandPaper } from "react-icons/fa";
-import type { Tool } from "../../../../store/useCanvasStore.js";
+import { type Tool } from "../../../../types/index.js";
 
 interface IHand {
   changeCursor: (pen: Tool) => void;

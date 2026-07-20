@@ -1,5 +1,5 @@
 import { FaHandPaper } from "react-icons/fa";
-import { useCanvasStore, type Tool } from "../../../../store/useCanvasStore.js";
+import { type Tool } from "../../../../types/index.js";
 interface IGrab {
   changeCursor: (pen: Tool) => void;
 }

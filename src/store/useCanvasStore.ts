@@ -6,16 +6,8 @@ import {
   type LineWithoutId,
   type Camera,
   type LineStart,
+  type Tool,
 } from "../types/index.js";
-
-export type Tool =
-  | "select"
-  | "pencil"
-  | "comment"
-  | "hand"
-  | "node"
-  | "grab"
-  | "grabbing";
 
 interface CanvasStore {
   nodes: Node[];
@@ -25,6 +17,7 @@ interface CanvasStore {
   camera: Camera;
   startLine: LineStart;
   selected: boolean;
+  isDrawing: boolean;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
@@ -34,6 +27,7 @@ interface CanvasStore {
   changeCursor: (e: Tool) => void;
   setLineStyle: (e: LineStart) => void;
   setSelected: (e: boolean) => void;
+  setDrawing: (e: boolean) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -44,8 +38,10 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       id: 1,
       count: 0,
       parentId: [],
+      type: "circle",
     },
   ],
+  isDrawing: false,
   edges: [],
   lines: [],
   cursor: "hand",
@@ -103,5 +99,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   setSelected: (e: boolean) =>
     set(() => ({
       selected: e,
+    })),
+  setDrawing: (e: boolean) =>
+    set(() => ({
+      isDrawing: e,
     })),
 }));

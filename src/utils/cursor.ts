@@ -1,4 +1,4 @@
-import type { Tool } from "../store/useCanvasStore.js";
+import type { Tool } from "../types/index.js";
 
 export const findForStyleCursor = (cursor: Tool) => {
   switch (cursor) {
@@ -6,6 +6,9 @@ export const findForStyleCursor = (cursor: Tool) => {
       return "pointer";
       break;
     case "pencil":
+      return "crosshair";
+      break;
+    case "triangle":
       return "crosshair";
       break;
     case "grab":

@@ -5,17 +5,21 @@ import Hand from "./cursors/hand/index.js";
 import Grab from "./cursors/grab/index.js";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import Zoom from "./zoom/index.js";
+import Rectangle from "./cursors/rectangle/index.js";
 
 const Panel = () => {
-  const { changeCursor, selected } = useCanvasStore((state) => state);
+  const { changeCursor, selected, isDrawing } = useCanvasStore(
+    (state) => state,
+  );
   return (
     <div
       className={style.panel}
-      style={{ pointerEvents: selected ? "none" : "all" }}
+      style={{ pointerEvents: selected || isDrawing ? "none" : "all" }}
     >
       <Pen changeCursor={changeCursor} />
       <Hand changeCursor={changeCursor} />
       <Grab changeCursor={changeCursor} />
+      <Rectangle changeCursor={changeCursor} />
       <Zoom />
     </div>
   );

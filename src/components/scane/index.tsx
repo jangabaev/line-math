@@ -20,6 +20,7 @@ const Scane = () => {
     startLine,
     setSelected,
     selected,
+    setDrawing,
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -82,6 +83,7 @@ const Scane = () => {
       id: draggingNodeId.current,
       x: updatedX,
       y: updatedY,
+      type: "circle",
     });
   };
 
@@ -98,6 +100,7 @@ const Scane = () => {
     if (cursor === "pencil") {
       const newId = uuidv4();
       const p = screenToWorld(e.clientX, e.clientY, camera);
+      setDrawing(true);
       createPen({
         userId: 1,
         cordinate: [p],
@@ -122,6 +125,7 @@ const Scane = () => {
   const handleMouseUp = (e: any) => {
     console.log(e);
     setSelected(false);
+    setDrawing(false);
     if (draggingLineId.current) {
       draggingLineId.current = null;
     }
