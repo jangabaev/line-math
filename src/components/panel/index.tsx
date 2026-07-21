@@ -9,7 +9,7 @@ import Rectangle from "./cursors/rectangle/index.js";
 import Line from "./cursors/line/index.js";
 
 const Panel = () => {
-  const { changeCursor, selected, isDrawing } = useCanvasStore(
+  const { changeCursor, selected, isDrawing,cursor } = useCanvasStore(
     (state) => state,
   );
   return (
@@ -17,11 +17,11 @@ const Panel = () => {
       className={style.panel}
       style={{ pointerEvents: selected || isDrawing ? "none" : "all" }}
     >
-      <Pen changeCursor={changeCursor} />
-      <Hand changeCursor={changeCursor} />
-      <Grab changeCursor={changeCursor} />
-      <Rectangle changeCursor={changeCursor} />
-      <Line changeCursor={changeCursor} />
+      <Pen />
+      <Hand />
+      <Grab />
+      <Rectangle/>
+      <Line/>
       <Zoom />
     </div>
   );

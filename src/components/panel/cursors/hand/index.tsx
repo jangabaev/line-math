@@ -1,13 +1,12 @@
-import { FaRegHandPaper } from "react-icons/fa";
-import { type Tool } from "../../../../types/index.js";
+import { RxCursorArrow } from "react-icons/rx";
+import { useCanvasStore } from "../../../../store/useCanvasStore.js";
 
-interface IHand {
-  changeCursor: (pen: Tool) => void;
-}
-const Hand = ({ changeCursor }: IHand) => {
+
+const Hand = () => {
+  const {changeCursor,cursor}=useCanvasStore((state)=>state)
   return (
     <div onClick={() => changeCursor("hand")}>
-      <FaRegHandPaper />
+      <RxCursorArrow />
     </div>
   );
 };

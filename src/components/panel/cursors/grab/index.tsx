@@ -1,10 +1,10 @@
 import { FaHandPaper } from "react-icons/fa";
 import { type Tool } from "../../../../types/index.js";
-interface IGrab {
-  changeCursor: (pen: Tool) => void;
-}
+import { useCanvasStore } from "../../../../store/useCanvasStore.js";
 
-const Grab = ({ changeCursor }: IGrab) => {
+
+const Grab = () => {
+  const {changeCursor,cursor}=useCanvasStore((state)=>state)
   return (
     <div onClick={() => changeCursor("grab")}>
       <FaHandPaper />

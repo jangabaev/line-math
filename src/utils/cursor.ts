@@ -3,7 +3,7 @@ import type { Tool } from "../types/index.js";
 export const findForStyleCursor = (cursor: Tool) => {
   switch (cursor) {
     case "hand":
-      return "pointer";
+      return "auto";
       break;
     case "pencil":
       return "crosshair";

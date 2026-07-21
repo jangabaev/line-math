@@ -1,15 +1,12 @@
 import { FaPen } from "react-icons/fa";
 
 import style from "./pen.module.css";
-import type { Tool } from "../../../../types/index.js";
+import { useCanvasStore } from "../../../../store/useCanvasStore.js";
 
-interface IPen {
-  changeCursor: (pen: Tool) => void;
-}
-
-const Pen = ({ changeCursor }: IPen) => {
+const Pen = () => {
+  const {changeCursor,cursor}=useCanvasStore((state)=>state)
   return (
-    <div className={style.pen} onClick={() => changeCursor("pencil")}>
+    <div className={cursor==="pencil"?"active":style.pen} onClick={()=>changeCursor("pencil")}>
       <FaPen />
     </div>
   );
