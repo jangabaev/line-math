@@ -145,7 +145,7 @@ const Scane = () => {
     if (cursor === "line") {
       const newId = uuidv4();
       const p = screenToWorld(e.clientX, e.clientY, camera);
-      
+
       setLineCreate({
         id: newId,
         type: "line",

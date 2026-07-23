@@ -2,8 +2,7 @@ import { create } from "zustand";
 import {
   type Node,
   type Edge,
-  type Line,
-  type LineWithoutId,
+  type Pencil,
   type Camera,
   type LineStart,
   type Tool,
@@ -13,17 +12,17 @@ interface CanvasStore {
   nodes: Node[];
   edges: Edge[];
   cursor: Tool;
-  lines: Line[];
+  lines: Pencil[];
   camera: Camera;
   designAll: LineStart;
   selected: boolean;
   isDrawing: boolean;
-  selectedId:Node|Line|Edge|null;
+  selectedEl: Node | Pencil | Edge | null;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
   pencilMove: (e: { id: string; x: number; y: number }) => void;
-  createPen: (e: Line) => void;
+  createPen: (e: Pencil) => void;
   moveCamera: (e: Camera) => void;
   changeCursor: (e: Tool) => void;
   setLineStyle: (e: LineStart) => void;
@@ -31,20 +30,11 @@ interface CanvasStore {
   setDrawing: (e: boolean) => void;
   setLineCreate: (e: Node) => void;
   setLine: (e: any) => void;
-  setSelectedId:(e:any)=>void
+  setSelectedEl: (e: any) => void;
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
-  nodes: [
-    {
-      x: 700,
-      y: 500,
-      id: 1,
-      count: 0,
-      parentId: [],
-      type: "circle",
-    },
-  ],
+  nodes: [],
   isDrawing: false,
   edges: [],
   lines: [],
@@ -64,7 +54,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     zoom: 1,
   },
   selected: false,
-  selectedId:null,
+  selectedEl: null,
   createNode: (node) =>
     set((state) => ({
       nodes: [...state.nodes, node],
@@ -125,7 +115,9 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     }));
   },
-  setSelectedId:(e:Node|Line|Edge|null)=>{
-    
-  }
+  setSelectedEl: (e: Node | Pencil | Edge | null) => {
+    set(() => ({
+      selectedEl: e,
+    }));
+  },
 }));

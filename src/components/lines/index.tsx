@@ -4,8 +4,11 @@ import { worldToScreen } from "../../utils/camera.js";
 import style from "./line.module.css";
 
 const Lines = () => {
-  const { lines, camera, nodes } = useCanvasStore((state) => state);
+  const { lines, camera, nodes, setSelectedEl, selectedEl } = useCanvasStore(
+    (state) => state,
+  );
 
+  console.log(selectedEl);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const draw = useCallback(() => {
@@ -19,7 +22,6 @@ const Lines = () => {
 
     // Pencil chiziqlari
     for (const line of lines) {
-
       const firstPoint = line.cordinate[0];
 
       if (!firstPoint) continue;
@@ -76,6 +78,16 @@ const Lines = () => {
         const start = worldToScreen(node.x, node.y, camera);
         const end = worldToScreen(node.endX, node.endY, camera);
 
+        if (selectedEl && node.id === selectedEl.id) {
+          drawSelection(
+            ctx,
+            start.x,
+            start.y,
+            Math.abs(start.x - end.x),
+            Math.abs(start.y - end.y),
+          );
+        }
+
         const x = Math.min(start.x, end.x);
         const y = Math.min(start.y, end.y);
         const width = Math.abs(end.x - start.x);
@@ -98,7 +110,29 @@ const Lines = () => {
         ctx.restore();
       }
     }
-  }, [lines, nodes, camera]);
+  }, [lines, nodes, camera, selectedEl]);
+
+  const hendleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const world = worldToScreen(mouseX, mouseY, camera);
+
+    for (const node of nodes) {
+      if (
+        node.type === "rectangle" &&
+        world.x >= node.x &&
+        world.x <= node.endX &&
+        world.y >= node.y &&
+        world.y <= node.endY
+      ) {
+        console.log(node);
+        return setSelectedEl(node);
+      }
+    }
+  };
 
   useEffect(() => {
     draw();
@@ -124,7 +158,32 @@ const Lines = () => {
     };
   }, [draw]);
 
-  return <canvas ref={canvasRef} className={style.pen} />;
+  const drawSelection = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ) => {
+    const padding = 6;
+
+    ctx.save();
+
+    ctx.strokeStyle = "#3b82f6";
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+
+    ctx.strokeRect(
+      x - padding,
+      y - padding,
+      width + padding * 2,
+      height + padding * 2,
+    );
+
+    ctx.restore();
+  };
+
+  return <canvas ref={canvasRef} className={style.pen} onClick={hendleClick} />;
 };
 
 export default Lines;

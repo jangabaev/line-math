@@ -9,11 +9,10 @@ interface ChildProps {
 }
 
 const Nodes = ({ draggingNodeId }: ChildProps) => {
-  const { nodes, camera, createNode, cursor } = useCanvasStore(
+  const { nodes, camera, createNode, cursor, setSelectedEl } = useCanvasStore(
     (state) => state,
   );
   const radius = 400;
-
   const cirlceRaduis = 50;
 
   const clickCircle = (node: Node) => {
@@ -21,6 +20,8 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
     const randmx = Math.floor(Math.random() * 100);
     const randmy = Math.floor(Math.random() * 100);
     const radus = 300;
+    console.log(122122);
+    setSelectedEl(node);
 
     createNode({
       x: randmx % 2 == 0 ? node.x - random : node.x + random,
@@ -78,7 +79,7 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
                 cursor === "grabbing" ||
                 cursor === "pencil"
                   ? "none"
-                  : "all",
+                  : "",
             }}
             key={el.id}
             onClick={() => clickCircle(el)}
