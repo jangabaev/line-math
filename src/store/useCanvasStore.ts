@@ -15,7 +15,7 @@ interface CanvasStore {
   cursor: Tool;
   lines: Line[];
   camera: Camera;
-  startLine: LineStart;
+  designAll: LineStart;
   selected: boolean;
   isDrawing: boolean;
 
@@ -47,13 +47,14 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   edges: [],
   lines: [],
   cursor: "hand",
-  startLine: {
+  designAll: {
     width: 1,
     color: "#000000",
     fill: "pattern",
     pressure: "constant",
     opacity: 1,
     background: "#000000",
+    borderRadius: 20,
   },
   camera: {
     x: 0,
@@ -96,7 +97,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
   changeCursor: (e: Tool) => set(() => ({ cursor: e })),
   setLineStyle: (e: LineStart) =>
     set((state) => ({
-      startLine: { ...state.startLine, ...e },
+      designAll: { ...state.designAll, ...e },
     })),
   setSelected: (e: boolean) =>
     set(() => ({

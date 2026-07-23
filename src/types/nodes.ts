@@ -5,6 +5,11 @@ export interface Element {
   count?: number;
   parentId?: number[];
   type: "circle";
+  width?: number;
+  opacity?: number;
+  color?: string;
+  borderRadius?: number;
+  pressure?: string;
 }
 
 export interface Rectangle {
@@ -12,9 +17,14 @@ export interface Rectangle {
   type: "rectangle";
   x: number;
   y: number;
-  width: number;
-  height: number;
+  endX: number;
+  endY: number;
   context: any;
+  width?: number;
+  opacity?: number;
+  color?: string;
+  borderRadius?: number;
+  pressure?: string;
 }
 
 export interface Line {
@@ -24,6 +34,10 @@ export interface Line {
   y: number;
   endX: number;
   endY: number;
+  width?: number;
+  opacity?: number;
+  color?: string;
+  pressure?: string;
   pointCenter: {
     x: number;
     y: number;

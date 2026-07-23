@@ -17,13 +17,14 @@ const Scane = () => {
     pencilMove,
     camera,
     moveCamera,
-    startLine,
+    designAll,
     setSelected,
     selected,
     setDrawing,
     setLineCreate,
     setLine,
     nodes,
+    createNode,
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -84,6 +85,15 @@ const Scane = () => {
       });
     }
 
+    if (cursor === "rectangle") {
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      moveNodes({
+        id: draggingLineId.current,
+        endX: p.x,
+        endY: p.y,
+      });
+    }
+
     // ssd
     if (draggingNodeId.current === null) return;
 
@@ -115,10 +125,10 @@ const Scane = () => {
       createPen({
         userId: 1,
         cordinate: [p],
-        color: startLine.color,
+        color: designAll.color,
         id: newId,
-        width: startLine.width,
-        opacity: startLine.opacity,
+        width: designAll.width,
+        opacity: designAll.opacity,
       });
       draggingLineId.current = newId;
     }
@@ -143,6 +153,31 @@ const Scane = () => {
         endX: p.x,
         endY: p.y,
         pointCenter: [],
+        color: designAll.color,
+        opacity: designAll.opacity,
+        pressure: designAll.pressure,
+        width: designAll.width,
+      });
+      draggingLineId.current = newId;
+    }
+
+    if (cursor === "rectangle") {
+      console.log(15);
+      const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      createNode({
+        type: "rectangle",
+        id: newId,
+        x: p.x,
+        y: p.y,
+        endX: p.x,
+        endY: p.y,
+        context: "",
+        color: designAll.color,
+        borderRadius: designAll.borderRadius,
+        opacity: designAll.opacity,
+        pressure: designAll.pressure,
+        width: designAll.width,
       });
       draggingLineId.current = newId;
     }

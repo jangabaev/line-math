@@ -18,6 +18,7 @@ export interface LineStart {
   pressure: PressureMode;
   opacity: number;
   background: ColorLine;
+  borderRadius: number;
 }
 
 export type LineWithoutId = Omit<Line, "id">;

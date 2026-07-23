@@ -6,7 +6,7 @@ import style from "./line.module.css";
 // bul sizlarg'a ren beriw qalinliq sol zatlardi ozgartiw
 
 const LineDesign = () => {
-  const { startLine, setLineStyle } = useCanvasStore((state) => state);
+  const { designAll, setLineStyle, cursor } = useCanvasStore((state) => state);
   return (
     <>
       <p>Stroke</p>
@@ -14,31 +14,37 @@ const LineDesign = () => {
         {["#1212e6", "#000000", "#ff0000", "#ff9500", "#008000"].map((el) => (
           <div
             className={style.color}
-            onClick={() => setLineStyle({ ...startLine, color: el })}
+            onClick={() => setLineStyle({ ...designAll, color: el })}
             style={{ backgroundColor: el }}
           ></div>
         ))}
         <div className={style.line}></div>
         <div
           className={style.color_choose}
-          style={{ backgroundColor: startLine.color }}
+          style={{ backgroundColor: designAll.color }}
         ></div>
       </div>
 
       <div className={style.range}>
         <RangeInput
           label="opacity"
-          defaultValue={startLine.opacity * 100}
+          defaultValue={designAll.opacity * 100}
           onChange={(e) =>
-            setLineStyle({ ...startLine, opacity: Math.floor(e / 10) / 10 })
+            setLineStyle({ ...designAll, opacity: Math.floor(e / 10) / 10 })
           }
         />
       </div>
       <p className={style.text}>Stroke width</p>
       <div className={style.width}>
-      <ButtonIcon onClick={()=>setLineStyle({ ...startLine, width: 1 })}><span className={style.strokeLine1}></span></ButtonIcon>
-      <ButtonIcon  onClick={()=>setLineStyle({ ...startLine, width: 3 })}><span className={style.strokeLine2}></span></ButtonIcon>
-      <ButtonIcon onClick={()=>setLineStyle({ ...startLine, width: 5 })}><span className={style.strokeLine3}></span></ButtonIcon>
+        <ButtonIcon onClick={() => setLineStyle({ ...designAll, width: 1 })}>
+          <span className={style.strokeLine1}></span>
+        </ButtonIcon>
+        <ButtonIcon onClick={() => setLineStyle({ ...designAll, width: 3 })}>
+          <span className={style.strokeLine2}></span>
+        </ButtonIcon>
+        <ButtonIcon onClick={() => setLineStyle({ ...designAll, width: 5 })}>
+          <span className={style.strokeLine3}></span>
+        </ButtonIcon>
       </div>
     </>
   );

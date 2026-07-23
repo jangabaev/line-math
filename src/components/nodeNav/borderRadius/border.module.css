@@ -1,0 +1,8 @@
+.group {
+    display: flex;
+    gap: 10px;
+}
+
+.txt {
+    margin-top: 20px;
+}

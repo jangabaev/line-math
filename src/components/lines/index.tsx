@@ -54,26 +54,50 @@ const Lines = () => {
 
     // To‘g‘ri chiziqlar
     for (const node of nodes) {
-      if (node.type !== "line") continue;
+      if (node.type == "line") {
+        const start = worldToScreen(node.x, node.y, camera);
 
-      const start = worldToScreen(node.x, node.y, camera);
+        const end = worldToScreen(node.endX, node.endY, camera);
 
-      const end = worldToScreen(node.endX, node.endY, camera);
+        ctx.save();
 
-      ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
 
-      ctx.beginPath();
-      ctx.moveTo(start.x, start.y);
-      ctx.lineTo(end.x, end.y);
+        ctx.strokeStyle = node.color ?? "black";
+        ctx.lineWidth = node.width ?? 3;
+        ctx.globalAlpha = node.opacity ?? 1;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
 
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 3;
-      ctx.globalAlpha = 1;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+        ctx.stroke();
+        ctx.restore();
+      } else if (node.type === "rectangle") {
+        const start = worldToScreen(node.x, node.y, camera);
+        const end = worldToScreen(node.endX, node.endY, camera);
 
-      ctx.stroke();
-      ctx.restore();
+        const x = Math.min(start.x, end.x);
+        const y = Math.min(start.y, end.y);
+        const width = Math.abs(end.x - start.x);
+        const height = Math.abs(end.y - start.y);
+
+        const radius = node.borderRadius ?? 12;
+
+        ctx.save();
+        ctx.beginPath();
+
+        ctx.roundRect(x, y, width, height, radius);
+
+        ctx.strokeStyle = node.color ?? "black";
+        ctx.lineWidth = node.width ?? 3;
+        ctx.globalAlpha = node.opacity ?? 1;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        ctx.stroke();
+        ctx.restore();
+      }
     }
   }, [lines, nodes, camera]);
 
