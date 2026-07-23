@@ -19,7 +19,6 @@ const Lines = () => {
 
     // Pencil chiziqlari
     for (const line of lines) {
-      if (line.cordinate.length < 2) continue;
 
       const firstPoint = line.cordinate[0];
 

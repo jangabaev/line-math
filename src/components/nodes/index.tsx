@@ -3,7 +3,6 @@ import type { RefObject } from "react";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import type { Node } from "../../types/index.js";
 import { worldToScreen } from "../../utils/camera.js";
-import type { Line } from "../../types/nodes.js";
 
 interface ChildProps {
   draggingNodeId: RefObject<number | null>;

@@ -1,10 +1,11 @@
-export interface Line {
+export interface Pencil {
   userId: number;
   cordinate: { x: number; y: number }[];
   color: string;
   id: string;
   width: number;
   opacity: number;
+  type:"pencil"
 }
 
 type ColorLine = "#1212e6" | "#000000" | "#ff0000" | "#ff9500" | "#008000";
@@ -21,4 +22,4 @@ export interface LineStart {
   borderRadius: number;
 }
 
-export type LineWithoutId = Omit<Line, "id">;
+export type PencilWithoutId = Omit<Pencil, "id">;

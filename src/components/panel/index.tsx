@@ -15,7 +15,7 @@ const Panel = () => {
   return (
     <div
       className={style.panel}
-      style={{ pointerEvents: selected || isDrawing ? "none" : "all" }}
+      style={{ pointerEvents: selected || isDrawing? "none" : "all" }}
     >
       <Pen />
       <Hand />

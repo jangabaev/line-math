@@ -18,6 +18,7 @@ interface CanvasStore {
   designAll: LineStart;
   selected: boolean;
   isDrawing: boolean;
+  selectedId:Node|Line|Edge|null;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
@@ -30,6 +31,7 @@ interface CanvasStore {
   setDrawing: (e: boolean) => void;
   setLineCreate: (e: Node) => void;
   setLine: (e: any) => void;
+  setSelectedId:(e:any)=>void
 }
 
 export const useCanvasStore = create<CanvasStore>((set) => ({
@@ -62,6 +64,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     zoom: 1,
   },
   selected: false,
+  selectedId:null,
   createNode: (node) =>
     set((state) => ({
       nodes: [...state.nodes, node],
@@ -122,4 +125,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     }));
   },
+  setSelectedId:(e:Node|Line|Edge|null)=>{
+    
+  }
 }));
