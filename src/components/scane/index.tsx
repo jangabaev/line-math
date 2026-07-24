@@ -25,6 +25,9 @@ const Scane = () => {
     setLine,
     nodes,
     createNode,
+    selectedEl,
+    setSelectedEl,
+    changeCursor
   } = useCanvasStore((state) => state);
 
   const [isPanning, setIsPanning] = useState(false);
@@ -41,6 +44,85 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
+
+    if (selectedEl && selectedEl.move) {
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+      moveNodes({ ...selectedEl, x: selectedEl.x + dx, y: selectedEl.y + dy, endX: selectedEl.endX + dx, endY: selectedEl.endY + dy })
+    }
+
+
+    if (selectedEl?.id) {
+      const rect = e.currentTarget.getBoundingClientRect();
+
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const start = worldToScreen(
+        selectedEl.x,
+        selectedEl.y,
+        camera,
+      );
+
+      const end = worldToScreen(
+        selectedEl.endX,
+        selectedEl.endY,
+        camera,
+      );
+
+      const padding = 6;
+      const tolerance = 6;
+
+      const left = Math.min(start.x, end.x) - padding;
+      const right = Math.max(start.x, end.x) + padding;
+      const top = Math.min(start.y, end.y) - padding;
+      const bottom = Math.max(start.y, end.y) + padding;
+
+      const nearLeft = Math.abs(mouseX - left) <= tolerance;
+      const nearRight = Math.abs(mouseX - right) <= tolerance;
+      const nearTop = Math.abs(mouseY - top) <= tolerance;
+      const nearBottom = Math.abs(mouseY - bottom) <= tolerance;
+
+      const insideHorizontal = mouseX >= left && mouseX <= right;
+      const insideVertical = mouseY >= top && mouseY <= bottom;
+
+      // Burchaklar
+      if (
+        (nearLeft && nearTop) ||
+        (nearRight && nearBottom)
+      ) {
+        changeCursor("nwse-resize");
+        return;
+      }
+
+      if (
+        (nearRight && nearTop) ||
+        (nearLeft && nearBottom)
+      ) {
+        changeCursor("nesw-resize");
+        return;
+      }
+
+      // Yuqori va pastki chiziq
+      if (
+        (nearTop || nearBottom) &&
+        insideHorizontal
+      ) {
+        changeCursor("ns-resize");
+        return;
+      }
+
+      // Chap va o‘ng chiziq
+      if (
+        (nearLeft || nearRight) &&
+        insideVertical
+      ) {
+        changeCursor("ew-resize");
+        return;
+      }
+
+    }
+
     if (cursor === "line") {
       setLine({
         id: draggingLineId.current,
@@ -129,6 +211,7 @@ const Scane = () => {
         id: newId,
         width: designAll.width,
         opacity: designAll.opacity,
+        type: "pencil"
       });
       draggingLineId.current = newId;
     }
@@ -188,6 +271,7 @@ const Scane = () => {
     console.log(e);
     setSelected(false);
     setDrawing(false);
+    setSelectedEl({ ...selectedEl, move: false })
     if (draggingLineId.current) {
       draggingLineId.current = null;
     }
@@ -212,7 +296,7 @@ const Scane = () => {
       <Edges cirlceRaduis={cirlceRaduis} />
 
       {/* for pen */}
-      <Lines />
+      <Lines lastMouse={lastMouse} />
     </div>
   );
 };

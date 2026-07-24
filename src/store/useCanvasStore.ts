@@ -17,7 +17,7 @@ interface CanvasStore {
   designAll: LineStart;
   selected: boolean;
   isDrawing: boolean;
-  selectedEl: Node | Pencil | Edge | null;
+  selectedEl: Node&{move:boolean} | null;
 
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
@@ -115,7 +115,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     }));
   },
-  setSelectedEl: (e: Node | Pencil | Edge | null) => {
+  setSelectedEl: (e: Node&{move:boolean} ) => {
     set(() => ({
       selectedEl: e,
     }));

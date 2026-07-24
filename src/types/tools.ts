@@ -8,4 +8,9 @@ export type Tool =
   | "grabbing"
   | "triangle"
   | "rectangle"
-  | "line";
+  | "line"
+  | "ns-resize"
+  | "ew-resize"
+  | "nwse-resize"
+  |"nesw-resize"
+  |"default";
