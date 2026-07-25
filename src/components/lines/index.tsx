@@ -4,15 +4,8 @@ import { screenToWorld, worldToScreen } from "../../utils/camera.js";
 import style from "./line.module.css";
 import { drawHandle } from "../../utils/drawHendle.js";
 
-interface ILine{
-  lastMouse: React.RefObject<{
-    x: number;
-    y: number;
-}>
-}
-
-const Lines = ({lastMouse}:ILine) => {
-  const { lines, camera, nodes,setSelectedEl , selectedEl } = useCanvasStore(
+const Lines = () => {
+  const { lines, camera, nodes, setSelectedEl, selectedEl } = useCanvasStore(
     (state) => state,
   );
 
@@ -119,33 +112,6 @@ const Lines = ({lastMouse}:ILine) => {
     }
   }, [lines, nodes, camera, selectedEl]);
 
-  const hendleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const world = screenToWorld(mouseX, mouseY, camera);
-    console.log(world)
-    lastMouse.current={x:mouseX,y:mouseY}
-    for (const node of nodes) {
-      if (
-        node.type === "rectangle" &&
-        world.x >= node.x &&
-        world.x <= node.endX &&
-        world.y >= node.y &&
-        world.y <= node.endY
-      ) {
-        console.log(node);
-        return setSelectedEl({...node,move:true});
-      }
-    }
-
-    return setSelectedEl(null)
-  };
-
-
-
   useEffect(() => {
     draw();
   }, [draw]);
@@ -179,46 +145,40 @@ const Lines = ({lastMouse}:ILine) => {
   ) => {
     const padding = 8;
 
-  const left = x - padding;
-  const right = x + width + padding;
-  const top = y - padding;
-  const bottom = y + height + padding;
+    const left = x - padding;
+    const right = x + width + padding;
+    const top = y - padding;
+    const bottom = y + height + padding;
 
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
 
-  ctx.save();
+    ctx.save();
 
-  ctx.strokeStyle = "#2e2e30";
-  ctx.lineWidth = 1;
-  ctx.setLineDash([10, 3]);
+    ctx.strokeStyle = "#2e2e30";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([10, 3]);
 
-  ctx.strokeRect(
-    left,
-    top,
-    width + padding * 2,
-    height + padding * 2,
-  );
+    ctx.strokeRect(left, top, width + padding * 2, height + padding * 2);
 
-  ctx.restore();
+    ctx.restore();
 
-  // Tepada
-  drawHandle(ctx, left, top);
-  drawHandle(ctx, centerX, top);
-  drawHandle(ctx, right, top);
+    // Tepada
+    drawHandle(ctx, left, top);
+    drawHandle(ctx, centerX, top);
+    drawHandle(ctx, right, top);
 
-  // Chap va o‘ng tomonda
-  drawHandle(ctx, left, centerY);
-  drawHandle(ctx, right, centerY);
+    // Chap va o‘ng tomonda
+    drawHandle(ctx, left, centerY);
+    drawHandle(ctx, right, centerY);
 
-  // Pastda
-  drawHandle(ctx, left, bottom);
-  drawHandle(ctx, centerX, bottom);
-  drawHandle(ctx, right, bottom);
-
+    // Pastda
+    drawHandle(ctx, left, bottom);
+    drawHandle(ctx, centerX, bottom);
+    drawHandle(ctx, right, bottom);
   };
 
-  return <canvas ref={canvasRef} className={style.pen} onMouseDown={hendleMouseDown}/>;
+  return <canvas ref={canvasRef} className={style.pen} />;
 };
 
 export default Lines;

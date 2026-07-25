@@ -23,21 +23,21 @@ export const findForStyleCursor = (cursor: Tool) => {
     case "grabbing":
       return "grabbing";
       break;
-    case "ew-resize":
-      return "ew-resize";
-      break
-    case "ns-resize":
-      return "ns-resize"
-      break
-    case "nwse-resize":
-      return "nwse-resize"
-      break
-    case "nesw-resize":
-      return "nesw-resize"
-      break
     default:
       "default";
       break;
   }
 };
 
+// // case "ew-resize":
+//       return "ew-resize";
+//       break
+//     case "ns-resize":
+//       return "ns-resize"
+//       break
+//     case "nwse-resize":
+//       return "nwse-resize"
+//       break
+//     case "nesw-resize":
+//       return "nesw-resize"
+//       break

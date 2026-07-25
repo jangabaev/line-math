@@ -27,8 +27,9 @@ const Scane = () => {
     createNode,
     selectedEl,
     setSelectedEl,
-    changeCursor
   } = useCanvasStore((state) => state);
+  const [cursorNode, setCursorNode] = useState("");
+  const [resize, setResize] = useState("");
 
   const [isPanning, setIsPanning] = useState(false);
   const draggingNodeId = useRef<number | null>(null);
@@ -44,13 +45,31 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const handleMouseMove = (e: any) => {
+    console.log(resize);
+    console.log(selectedEl);
+    if (selectedEl && resize) {
+      const dx = e.clientX - lastMouse.current.x;
+      const dy = e.clientY - lastMouse.current.y;
+      const world = screenToWorld(e.clientX, e.clientY, camera);
+      console.log(12);
+      moveNodes({
+        ...selectedEl,
+        endX: world.x,
+        endY: world.y,
+      });
+    }
 
     if (selectedEl && selectedEl.move) {
       const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
-      moveNodes({ ...selectedEl, x: selectedEl.x + dx, y: selectedEl.y + dy, endX: selectedEl.endX + dx, endY: selectedEl.endY + dy })
+      moveNodes({
+        ...selectedEl,
+        x: selectedEl.x + dx,
+        y: selectedEl.y + dy,
+        endX: selectedEl.endX + dx,
+        endY: selectedEl.endY + dy,
+      });
     }
-
 
     if (selectedEl?.id) {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -58,17 +77,9 @@ const Scane = () => {
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      const start = worldToScreen(
-        selectedEl.x,
-        selectedEl.y,
-        camera,
-      );
+      const start = worldToScreen(selectedEl.x, selectedEl.y, camera);
 
-      const end = worldToScreen(
-        selectedEl.endX,
-        selectedEl.endY,
-        camera,
-      );
+      const end = worldToScreen(selectedEl.endX, selectedEl.endY, camera);
 
       const padding = 6;
       const tolerance = 6;
@@ -87,40 +98,29 @@ const Scane = () => {
       const insideVertical = mouseY >= top && mouseY <= bottom;
 
       // Burchaklar
-      if (
-        (nearLeft && nearTop) ||
-        (nearRight && nearBottom)
-      ) {
-        changeCursor("nwse-resize");
+      if ((nearLeft && nearTop) || (nearRight && nearBottom)) {
+        setCursorNode("nwse-resize");
         return;
       }
 
-      if (
-        (nearRight && nearTop) ||
-        (nearLeft && nearBottom)
-      ) {
-        changeCursor("nesw-resize");
+      if ((nearRight && nearTop) || (nearLeft && nearBottom)) {
+        setCursorNode("nesw-resize");
         return;
       }
 
       // Yuqori va pastki chiziq
-      if (
-        (nearTop || nearBottom) &&
-        insideHorizontal
-      ) {
-        changeCursor("ns-resize");
+      if ((nearTop || nearBottom) && insideHorizontal) {
+        setCursorNode("ns-resize");
         return;
       }
 
       // Chap va o‘ng chiziq
-      if (
-        (nearLeft || nearRight) &&
-        insideVertical
-      ) {
-        changeCursor("ew-resize");
+      if ((nearLeft || nearRight) && insideVertical) {
+        setCursorNode("ew-resize");
         return;
       }
 
+      return setCursorNode("");
     }
 
     if (cursor === "line") {
@@ -191,6 +191,11 @@ const Scane = () => {
   };
 
   const hendleMouseDownOutside = (e: any) => {
+    console.log(cursorNode);
+    if (cursorNode && selectedEl) {
+      setResize(cursorNode);
+    }
+
     if (e.button === 1) {
       setIsPanning(true);
       setSelected(true);
@@ -211,7 +216,7 @@ const Scane = () => {
         id: newId,
         width: designAll.width,
         opacity: designAll.opacity,
-        type: "pencil"
+        type: "pencil",
       });
       draggingLineId.current = newId;
     }
@@ -265,13 +270,38 @@ const Scane = () => {
       });
       draggingLineId.current = newId;
     }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const world = screenToWorld(mouseX, mouseY, camera);
+    console.log(world);
+    lastMouse.current = { x: mouseX, y: mouseY };
+    for (const node of nodes) {
+      if (
+        node.type === "rectangle" &&
+        world.x >= node.x &&
+        world.x <= node.endX &&
+        world.y >= node.y &&
+        world.y <= node.endY
+      ) {
+        console.log(node);
+        return setSelectedEl({ ...node, move: true });
+      }
+    }
+    // if (!resize && !selectedEl) {
+    return setSelectedEl(null);
+    // }
   };
 
   const handleMouseUp = (e: any) => {
     console.log(e);
     setSelected(false);
     setDrawing(false);
-    setSelectedEl({ ...selectedEl, move: false })
+    setResize("");
+    setSelectedEl({ ...selectedEl, move: false });
     if (draggingLineId.current) {
       draggingLineId.current = null;
     }
@@ -283,7 +313,10 @@ const Scane = () => {
     <div
       className="canvas"
       style={{
-        cursor: findForStyleCursor(selected ? "grabbing" : cursor),
+        cursor:
+          selectedEl && cursorNode
+            ? cursorNode
+            : findForStyleCursor(selected ? "grabbing" : cursor),
       }}
       onMouseMove={(e) => handleMouseMove(e)}
       onMouseDown={(e) => hendleMouseDownOutside(e)}
@@ -296,7 +329,7 @@ const Scane = () => {
       <Edges cirlceRaduis={cirlceRaduis} />
 
       {/* for pen */}
-      <Lines lastMouse={lastMouse} />
+      <Lines />
     </div>
   );
 };

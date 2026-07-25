@@ -9,8 +9,4 @@ export type Tool =
   | "triangle"
   | "rectangle"
   | "line"
-  | "ns-resize"
-  | "ew-resize"
-  | "nwse-resize"
-  |"nesw-resize"
-  |"default";
+  | "default";
