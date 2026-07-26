@@ -1,13 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
-
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import Nodes from "../nodes/index.js";
 import Edges from "../edges/index.js";
 import Lines from "../lines/index.js";
-import type { Node } from "../../types/index.js";
 import { findForStyleCursor } from "../../utils/cursor.js";
 import { screenToWorld, worldToScreen } from "../../utils/camera.js";
+import { foundElement } from "../../utils/resizeElement.js";
 
 const Scane = () => {
   const {
@@ -41,12 +40,94 @@ const Scane = () => {
     x: 0,
     y: 0,
   });
-  const radius = 400;
   const cirlceRaduis = 50;
 
+  const hendleMouseDown = (e: any) => {
+    if (cursorNode && selectedEl && cursor === "hand") {
+      setResize(cursorNode);
+    }
+
+    if (e.button === 1) {
+      setIsPanning(true);
+      setSelected(true);
+      return (lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
+
+    if (cursor === "pencil") {
+      const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      setDrawing(true);
+      createPen({
+        userId: 1,
+        cordinate: [p],
+        color: designAll.color,
+        id: newId,
+        width: designAll.width,
+        opacity: designAll.opacity,
+        type: "pencil",
+      });
+      draggingLineId.current = newId;
+    }
+
+    if (cursor === "grab") {
+      setIsPanning(true);
+      setSelected(true);
+      return (lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      });
+    }
+
+    if (cursor === "line") {
+      const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+
+      setLineCreate({
+        id: newId,
+        type: "line",
+        x: p.x,
+        y: p.y,
+        endX: p.x,
+        endY: p.y,
+        pointCenter: [],
+        color: designAll.color,
+        opacity: designAll.opacity,
+        pressure: designAll.pressure,
+        width: designAll.width,
+      });
+      draggingLineId.current = newId;
+    }
+
+    if (cursor === "rectangle") {
+      console.log(15);
+      const newId = uuidv4();
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      createNode({
+        type: "rectangle",
+        id: newId,
+        x: p.x,
+        y: p.y,
+        endX: p.x,
+        endY: p.y,
+        context: "",
+        color: designAll.color,
+        borderRadius: designAll.borderRadius,
+        opacity: designAll.opacity,
+        pressure: designAll.pressure,
+        width: designAll.width,
+      });
+      draggingLineId.current = newId;
+    }
+
+    if (cursor === "hand") {
+      foundElement({ e, camera, lastMouse, nodes, setSelectedEl });
+    }
+  };
+
   const handleMouseMove = (e: any) => {
-    console.log(resize);
-    console.log(selectedEl);
     if (selectedEl && resize) {
       const dx = e.clientX - lastMouse.current.x;
       const dy = e.clientY - lastMouse.current.y;
@@ -71,7 +152,7 @@ const Scane = () => {
       });
     }
 
-    if (selectedEl?.id) {
+    if (selectedEl?.id && cursor === "hand") {
       const rect = e.currentTarget.getBoundingClientRect();
 
       const mouseX = e.clientX - rect.left;
@@ -190,112 +271,6 @@ const Scane = () => {
     });
   };
 
-  const hendleMouseDownOutside = (e: any) => {
-    console.log(cursorNode);
-    if (cursorNode && selectedEl) {
-      setResize(cursorNode);
-    }
-
-    if (e.button === 1) {
-      setIsPanning(true);
-      setSelected(true);
-      return (lastMouse.current = {
-        x: e.clientX,
-        y: e.clientY,
-      });
-    }
-
-    if (cursor === "pencil") {
-      const newId = uuidv4();
-      const p = screenToWorld(e.clientX, e.clientY, camera);
-      setDrawing(true);
-      createPen({
-        userId: 1,
-        cordinate: [p],
-        color: designAll.color,
-        id: newId,
-        width: designAll.width,
-        opacity: designAll.opacity,
-        type: "pencil",
-      });
-      draggingLineId.current = newId;
-    }
-
-    if (cursor === "grab") {
-      setIsPanning(true);
-      setSelected(true);
-      return (lastMouse.current = {
-        x: e.clientX,
-        y: e.clientY,
-      });
-    }
-
-    if (cursor === "line") {
-      const newId = uuidv4();
-      const p = screenToWorld(e.clientX, e.clientY, camera);
-
-      setLineCreate({
-        id: newId,
-        type: "line",
-        x: p.x,
-        y: p.y,
-        endX: p.x,
-        endY: p.y,
-        pointCenter: [],
-        color: designAll.color,
-        opacity: designAll.opacity,
-        pressure: designAll.pressure,
-        width: designAll.width,
-      });
-      draggingLineId.current = newId;
-    }
-
-    if (cursor === "rectangle") {
-      console.log(15);
-      const newId = uuidv4();
-      const p = screenToWorld(e.clientX, e.clientY, camera);
-      createNode({
-        type: "rectangle",
-        id: newId,
-        x: p.x,
-        y: p.y,
-        endX: p.x,
-        endY: p.y,
-        context: "",
-        color: designAll.color,
-        borderRadius: designAll.borderRadius,
-        opacity: designAll.opacity,
-        pressure: designAll.pressure,
-        width: designAll.width,
-      });
-      draggingLineId.current = newId;
-    }
-
-    const rect = e.currentTarget.getBoundingClientRect();
-
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    const world = screenToWorld(mouseX, mouseY, camera);
-    console.log(world);
-    lastMouse.current = { x: mouseX, y: mouseY };
-    for (const node of nodes) {
-      if (
-        node.type === "rectangle" &&
-        world.x >= node.x &&
-        world.x <= node.endX &&
-        world.y >= node.y &&
-        world.y <= node.endY
-      ) {
-        console.log(node);
-        return setSelectedEl({ ...node, move: true });
-      }
-    }
-    // if (!resize && !selectedEl) {
-    return setSelectedEl(null);
-    // }
-  };
-
   const handleMouseUp = (e: any) => {
     console.log(e);
     setSelected(false);
@@ -309,6 +284,7 @@ const Scane = () => {
       setIsPanning(false);
     }
   };
+
   return (
     <div
       className="canvas"
@@ -319,7 +295,7 @@ const Scane = () => {
             : findForStyleCursor(selected ? "grabbing" : cursor),
       }}
       onMouseMove={(e) => handleMouseMove(e)}
-      onMouseDown={(e) => hendleMouseDownOutside(e)}
+      onMouseDown={(e) => hendleMouseDown(e)}
       onMouseUp={(e) => handleMouseUp(e)}
     >
       {/* bul deneler */}
