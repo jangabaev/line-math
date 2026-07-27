@@ -9,14 +9,14 @@ export const foundElement = ({
   nodes,
   setSelectedEl,
 }: {
-  e: any;
+  e: React.MouseEvent<HTMLDivElement>;
   camera: Camera;
-  lastMouse: React.RefObject<{
+  lastMouse: React.MutableRefObject<{
     x: number;
     y: number;
   }>;
   nodes: Node[];
-  setSelectedEl: (e: any) => void;
+  setSelectedEl: (node: Node | null) => void;
 }) => {
   const rect = e.currentTarget.getBoundingClientRect();
 
@@ -24,19 +24,33 @@ export const foundElement = ({
   const mouseY = e.clientY - rect.top;
 
   const world = screenToWorld(mouseX, mouseY, camera);
-  lastMouse.current = { x: mouseX, y: mouseY };
-  for (const node of nodes) {
+
+  for (const node of [...nodes].reverse()) {
+    const left = Math.min(node.x, node.endX);
+    const right = Math.max(node.x, node.endX);
+    const top = Math.min(node.y, node.endY);
+    const bottom = Math.max(node.y, node.endY);
+
     if (
       node.type === "rectangle" &&
-      world.x >= node.x &&
-      world.x <= node.endX &&
-      world.y >= node.y &&
-      world.y <= node.endY
+      world.x >= left &&
+      world.x <= right &&
+      world.y >= top &&
+      world.y <= bottom
     ) {
-      console.log(node);
-      return setSelectedEl({ ...node, move: true });
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
+
+      setSelectedEl({
+        ...node,
+        move: true,
+      });
+
+      return;
     }
   }
-  // if (!resize && !selectedEl) {
-  return setSelectedEl(null);
+
+  setSelectedEl(null);
 };

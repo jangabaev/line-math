@@ -7,6 +7,7 @@ import Lines from "../lines/index.js";
 import { findForStyleCursor } from "../../utils/cursor.js";
 import { screenToWorld, worldToScreen } from "../../utils/camera.js";
 import { foundElement } from "../../utils/resizeElement.js";
+import type { ResizeHandle } from "../../types/tools.js";
 
 const Scane = () => {
   const {
@@ -28,7 +29,8 @@ const Scane = () => {
     setSelectedEl,
   } = useCanvasStore((state) => state);
   const [cursorNode, setCursorNode] = useState("");
-  const [resize, setResize] = useState("");
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<ResizeHandle>(null);
 
   const [isPanning, setIsPanning] = useState(false);
   const draggingNodeId = useRef<number | null>(null);
@@ -43,8 +45,16 @@ const Scane = () => {
   const cirlceRaduis = 50;
 
   const hendleMouseDown = (e: any) => {
-    if (cursorNode && selectedEl && cursor === "hand") {
-      setResize(cursorNode);
+    if (e.button !== 0 && e.button !== 1) return;
+
+    if (e.button === 0 && resizeHandle && selectedEl && cursor === "hand") {
+      setIsResizing(true);
+      setSelectedEl({
+        ...selectedEl,
+        move: false,
+      });
+
+      return;
     }
 
     if (e.button === 1) {
@@ -128,80 +138,123 @@ const Scane = () => {
   };
 
   const handleMouseMove = (e: any) => {
-    if (selectedEl && resize) {
-      const dx = e.clientX - lastMouse.current.x;
-      const dy = e.clientY - lastMouse.current.y;
-      const world = screenToWorld(e.clientX, e.clientY, camera);
-      console.log(12);
-      moveNodes({
-        ...selectedEl,
-        endX: world.x,
-        endY: world.y,
-      });
+    if (selectedEl && resizeHandle && isResizing) {
+      const rect = e.currentTarget.getBoundingClientRect();
+
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const world = screenToWorld(mouseX, mouseY, camera);
+
+      resizeSelectedElement(world.x, world.y);
+      return;
     }
 
-    if (selectedEl && selectedEl.move) {
-      const dx = e.clientX - lastMouse.current.x;
-      const dy = e.clientY - lastMouse.current.y;
-      moveNodes({
+    if (selectedEl?.move && !resizeHandle) {
+      const dx = (e.clientX - lastMouse.current.x) / camera.zoom;
+      const dy = (e.clientY - lastMouse.current.y) / camera.zoom;
+
+      const updatedElement = {
         ...selectedEl,
         x: selectedEl.x + dx,
         y: selectedEl.y + dy,
         endX: selectedEl.endX + dx,
         endY: selectedEl.endY + dy,
-      });
+      };
+
+      moveNodes(updatedElement);
+      setSelectedEl(updatedElement);
+
+      lastMouse.current = {
+        x: e.clientX,
+        y: e.clientY,
+      };
+
+      return;
     }
 
-    if (selectedEl?.id && cursor === "hand") {
+    if (
+      selectedEl?.id &&
+      cursor === "hand" &&
+      !selectedEl.move &&
+      !isResizing
+    ) {
       const rect = e.currentTarget.getBoundingClientRect();
 
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
       const start = worldToScreen(selectedEl.x, selectedEl.y, camera);
-
       const end = worldToScreen(selectedEl.endX, selectedEl.endY, camera);
 
-      const padding = 6;
-      const tolerance = 6;
+      const tolerance = 8;
 
-      const left = Math.min(start.x, end.x) - padding;
-      const right = Math.max(start.x, end.x) + padding;
-      const top = Math.min(start.y, end.y) - padding;
-      const bottom = Math.max(start.y, end.y) + padding;
+      const left = Math.min(start.x, end.x);
+      const right = Math.max(start.x, end.x);
+      const top = Math.min(start.y, end.y);
+      const bottom = Math.max(start.y, end.y);
 
       const nearLeft = Math.abs(mouseX - left) <= tolerance;
       const nearRight = Math.abs(mouseX - right) <= tolerance;
       const nearTop = Math.abs(mouseY - top) <= tolerance;
       const nearBottom = Math.abs(mouseY - bottom) <= tolerance;
 
-      const insideHorizontal = mouseX >= left && mouseX <= right;
-      const insideVertical = mouseY >= top && mouseY <= bottom;
+      const insideHorizontal =
+        mouseX >= left - tolerance && mouseX <= right + tolerance;
 
-      // Burchaklar
-      if ((nearLeft && nearTop) || (nearRight && nearBottom)) {
+      const insideVertical =
+        mouseY >= top - tolerance && mouseY <= bottom + tolerance;
+
+      if (nearLeft && nearTop) {
+        setResizeHandle("top-left");
         setCursorNode("nwse-resize");
         return;
       }
 
-      if ((nearRight && nearTop) || (nearLeft && nearBottom)) {
+      if (nearRight && nearTop) {
+        setResizeHandle("top-right");
         setCursorNode("nesw-resize");
         return;
       }
 
-      // Yuqori va pastki chiziq
-      if ((nearTop || nearBottom) && insideHorizontal) {
+      if (nearLeft && nearBottom) {
+        setResizeHandle("bottom-left");
+        setCursorNode("nesw-resize");
+        return;
+      }
+
+      if (nearRight && nearBottom) {
+        setResizeHandle("bottom-right");
+        setCursorNode("nwse-resize");
+        return;
+      }
+
+      if (nearTop && insideHorizontal) {
+        setResizeHandle("top");
         setCursorNode("ns-resize");
         return;
       }
 
-      // Chap va o‘ng chiziq
-      if ((nearLeft || nearRight) && insideVertical) {
+      if (nearBottom && insideHorizontal) {
+        setResizeHandle("bottom");
+        setCursorNode("ns-resize");
+        return;
+      }
+
+      if (nearLeft && insideVertical) {
+        setResizeHandle("left");
         setCursorNode("ew-resize");
         return;
       }
 
-      return setCursorNode("");
+      if (nearRight && insideVertical) {
+        setResizeHandle("right");
+        setCursorNode("ew-resize");
+        return;
+      }
+
+      setResizeHandle(null);
+      setCursorNode("");
     }
 
     if (cursor === "line") {
@@ -272,17 +325,87 @@ const Scane = () => {
   };
 
   const handleMouseUp = (e: any) => {
-    console.log(e);
     setSelected(false);
     setDrawing(false);
-    setResize("");
-    setSelectedEl({ ...selectedEl, move: false });
-    if (draggingLineId.current) {
-      draggingLineId.current = null;
+    setIsResizing(false);
+    setResizeHandle(null);
+    setCursorNode("");
+
+    if (selectedEl) {
+      setSelectedEl({
+        ...selectedEl,
+        move: false,
+      });
     }
-    if (isPanning) {
-      setIsPanning(false);
+
+    draggingLineId.current = null;
+    draggingNodeId.current = null;
+    setIsPanning(false);
+  };
+
+  const resizeSelectedElement = (worldX: number, worldY: number) => {
+    if (!selectedEl || !resizeHandle) return;
+
+    let x = selectedEl.x;
+    let y = selectedEl.y;
+    let endX = selectedEl.endX;
+    let endY = selectedEl.endY;
+
+    switch (resizeHandle) {
+      case "top":
+        y = worldY;
+        break;
+
+      case "bottom":
+        endY = worldY;
+        break;
+
+      case "left":
+        x = worldX;
+        break;
+
+      case "right":
+        endX = worldX;
+        break;
+
+      case "top-left":
+        x = worldX;
+        y = worldY;
+        break;
+
+      case "top-right":
+        endX = worldX;
+        y = worldY;
+        break;
+
+      case "bottom-left":
+        x = worldX;
+        endY = worldY;
+        break;
+
+      case "bottom-right":
+        endX = worldX;
+        endY = worldY;
+        break;
     }
+
+    moveNodes({
+      id: selectedEl.id,
+      type: selectedEl.type,
+      x,
+      y,
+      endX,
+      endY,
+    });
+
+    setSelectedEl({
+      ...selectedEl,
+      x,
+      y,
+      endX,
+      endY,
+      move: false,
+    });
   };
 
   return (
@@ -290,7 +413,7 @@ const Scane = () => {
       className="canvas"
       style={{
         cursor:
-          selectedEl && cursorNode
+          selectedEl && cursorNode && resizeHandle
             ? cursorNode
             : findForStyleCursor(selected ? "grabbing" : cursor),
       }}

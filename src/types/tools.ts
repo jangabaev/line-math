@@ -10,3 +10,14 @@ export type Tool =
   | "rectangle"
   | "line"
   | "default";
+
+export type ResizeHandle =
+  | "top"
+  | "bottom"
+  | "left"
+  | "right"
+  | "top-left"
+  | "top-right"
+  | "bottom-left"
+  | "bottom-right"
+  | null;
