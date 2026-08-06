@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useCanvasStore } from "../../store/useCanvasStore.js";
 import Nodes from "../nodes/index.js";
@@ -8,6 +8,7 @@ import { findForStyleCursor } from "../../utils/cursor.js";
 import { screenToWorld, worldToScreen } from "../../utils/camera.js";
 import { foundElement } from "../../utils/resizeElement.js";
 import type { ResizeHandle } from "../../types/tools.js";
+import { useKeyboardPress } from "../../hooks/keybordPress.js";
 
 const Scane = () => {
   const {
@@ -27,6 +28,7 @@ const Scane = () => {
     createNode,
     selectedEl,
     setSelectedEl,
+    deleteNodes,
   } = useCanvasStore((state) => state);
   const [cursorNode, setCursorNode] = useState("");
   const [isResizing, setIsResizing] = useState(false);
@@ -46,6 +48,7 @@ const Scane = () => {
 
   const hendleMouseDown = (e: any) => {
     if (e.button !== 0 && e.button !== 1) return;
+    const newId = uuidv4();
 
     if (e.button === 0 && resizeHandle && selectedEl && cursor === "hand") {
       setIsResizing(true);
@@ -67,7 +70,6 @@ const Scane = () => {
     }
 
     if (cursor === "pencil") {
-      const newId = uuidv4();
       const p = screenToWorld(e.clientX, e.clientY, camera);
       setDrawing(true);
       createPen({
@@ -92,7 +94,6 @@ const Scane = () => {
     }
 
     if (cursor === "line") {
-      const newId = uuidv4();
       const p = screenToWorld(e.clientX, e.clientY, camera);
 
       setLineCreate({
@@ -113,7 +114,7 @@ const Scane = () => {
 
     if (cursor === "rectangle") {
       console.log(15);
-      const newId = uuidv4();
+
       const p = screenToWorld(e.clientX, e.clientY, camera);
       createNode({
         type: "rectangle",
@@ -134,6 +135,24 @@ const Scane = () => {
 
     if (cursor === "hand") {
       foundElement({ e, camera, lastMouse, nodes, setSelectedEl });
+    }
+
+    if (cursor === "circle") {
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      createNode({
+        id: newId,
+        type: "circle",
+        x: p.x,
+        y: p.y,
+        endX: p.x,
+        endY: p.y,
+        color: designAll.color,
+        opacity: designAll.opacity,
+        pressure: designAll.pressure,
+        width: designAll.width,
+        background: designAll.background,
+      });
+      draggingLineId.current = newId;
     }
   };
 
@@ -310,6 +329,15 @@ const Scane = () => {
       });
     }
 
+    if (cursor === "circle") {
+      const p = screenToWorld(e.clientX, e.clientY, camera);
+      moveNodes({
+        id: draggingLineId.current,
+        endX: p.x,
+        endY: p.y,
+      });
+    }
+
     // ssd
     if (draggingNodeId.current === null) return;
 
@@ -407,6 +435,8 @@ const Scane = () => {
       move: false,
     });
   };
+
+  useKeyboardPress({ deleteNodes, selectedEl, setSelectedEl });
 
   return (
     <div

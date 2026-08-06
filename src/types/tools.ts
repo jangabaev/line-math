@@ -9,7 +9,8 @@ export type Tool =
   | "triangle"
   | "rectangle"
   | "line"
-  | "default";
+  | "default"
+  | "circle";
 
 export type ResizeHandle =
   | "top"

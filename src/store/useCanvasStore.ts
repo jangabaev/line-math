@@ -17,8 +17,9 @@ interface CanvasStore {
   designAll: LineStart;
   selected: boolean;
   isDrawing: boolean;
-  selectedEl: Node&{move:boolean} | null;
+  selectedEl: (Node & { move: boolean }) | null;
 
+  deleteNodes: (e: string) => void;
   createNode: (node: Node) => void;
   moveNodes: (node: Node) => void;
   pencilMove: (e: { id: string; x: number; y: number }) => void;
@@ -77,6 +78,15 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       ),
     }));
   },
+  deleteNodes: (id) => {
+    set((state) => ({
+      nodes: state.nodes.filter((el) => {
+        if (el.id !== id) {
+          return el;
+        }
+      }),
+    }));
+  },
   createPen: (e) =>
     set((state) => ({
       lines: [...state.lines, e],
@@ -115,7 +125,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
       }),
     }));
   },
-  setSelectedEl: (e: Node&{move:boolean} ) => {
+  setSelectedEl: (e: Node & { move: boolean }) => {
     set(() => ({
       selectedEl: e,
     }));

@@ -79,13 +79,7 @@ const Lines = () => {
         const end = worldToScreen(node.endX, node.endY, camera);
 
         if (selectedEl && node.id === selectedEl.id) {
-          drawSelection(
-            ctx,
-            start.x,
-            start.y,
-            Math.abs(start.x - end.x),
-            Math.abs(start.y - end.y),
-          );
+          drawSelection(ctx, start.x, start.y, end.x, end.y);
         }
 
         const x = Math.min(start.x, end.x);
@@ -108,6 +102,30 @@ const Lines = () => {
 
         ctx.stroke();
         ctx.restore();
+      } else if (node.type === "circle") {
+        ctx.save();
+
+        ctx.beginPath();
+        const start = worldToScreen(node.x, node.y, camera);
+        const end = worldToScreen(node.endX, node.endY, camera);
+        const center = {
+          x: (start.x + end.x) / 2,
+          y: (start.y + end.y) / 2,
+        };
+        ctx.ellipse(
+          center.x,
+          center.y,
+          Math.abs(start.x - center.x),
+          Math.abs(start.y - center.y),
+          0,
+          0,
+          2 * Math.PI,
+        );
+        ctx.fillStyle = node.background ?? "#3b82f6";
+        ctx.lineWidth = node.width ?? 3;
+        ctx.strokeStyle = node.color ?? "#000000";
+        ctx.fill();
+        ctx.stroke();
       }
     }
   }, [lines, nodes, camera, selectedEl]);
@@ -140,18 +158,18 @@ const Lines = () => {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width: number,
-    height: number,
+    endX: number,
+    endY: number,
   ) => {
     const padding = 8;
 
-    const left = x - padding;
-    const right = x + width + padding;
-    const top = y - padding;
-    const bottom = y + height + padding;
+    const left = x < endX ? x - padding : endX - padding;
+    const right = x < endX ? endX + padding : x + padding;
+    const top = y > endY ? endY - padding : y - padding;
+    const bottom = y > endY ? y + padding : endY + padding;
 
-    const centerX = x + width / 2;
-    const centerY = y + height / 2;
+    const centerX = (x + endX) / 2;
+    const centerY = (y + endY) / 2;
 
     ctx.save();
 
@@ -159,20 +177,22 @@ const Lines = () => {
     ctx.lineWidth = 1;
     ctx.setLineDash([10, 3]);
 
-    ctx.strokeRect(left, top, width + padding * 2, height + padding * 2);
+    ctx.strokeRect(
+      left,
+      top,
+      Math.abs(endX - x) + padding * 2,
+      Math.abs(endY - y) + padding * 2,
+    );
 
     ctx.restore();
 
-    // Tepada
     drawHandle(ctx, left, top);
     drawHandle(ctx, centerX, top);
     drawHandle(ctx, right, top);
 
-    // Chap va o‘ng tomonda
     drawHandle(ctx, left, centerY);
     drawHandle(ctx, right, centerY);
 
-    // Pastda
     drawHandle(ctx, left, bottom);
     drawHandle(ctx, centerX, bottom);
     drawHandle(ctx, right, bottom);

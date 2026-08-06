@@ -64,7 +64,11 @@ const Nodes = ({ draggingNodeId }: ChildProps) => {
     <>
       {nodes.map((el) => {
         const cordinate = worldToScreen(el.x, el.y, camera);
-        if (el.type === "line" || el.type === "rectangle") {
+        if (
+          el.type === "line" ||
+          el.type === "rectangle" ||
+          el.type === "circle"
+        ) {
           return null;
         }
         return (

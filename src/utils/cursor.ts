@@ -17,6 +17,9 @@ export const findForStyleCursor = (cursor: Tool) => {
     case "line":
       return "crosshair";
       break;
+    case "circle":
+      return "crosshair";
+      break;
     case "grab":
       return "grab";
       break;

@@ -1,9 +1,11 @@
 export interface Element {
   x: number;
   y: number;
-  id: number;
+  id: string;
+  endX: number;
+  endY: number;
+  background?: string;
   count?: number;
-  parentId?: number[];
   type: "circle";
   width?: number;
   opacity?: number;
