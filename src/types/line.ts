@@ -5,10 +5,16 @@ export interface Pencil {
   id: string;
   width: number;
   opacity: number;
-  type:"pencil"
+  type: "pencil";
 }
 
-type ColorLine = "#1212e6" | "#000000" | "#ff0000" | "#ff9500" | "#008000";
+type ColorLine =
+  | "#1212e6"
+  | "#000000"
+  | "#ff0000"
+  | "#ff9500"
+  | "#008000"
+  | "#1212e600";
 type Fill = "pattern" | "transparent" | "solid";
 type PressureMode = "constant" | "pressure";
 

@@ -60,6 +60,9 @@ const Lines = () => {
 
         const end = worldToScreen(node.endX, node.endY, camera);
 
+        if (selectedEl && node.id === selectedEl.id) {
+          drawSelection(ctx, start.x, start.y, end.x, end.y);
+        }
         ctx.save();
 
         ctx.beginPath();
@@ -103,11 +106,14 @@ const Lines = () => {
         ctx.stroke();
         ctx.restore();
       } else if (node.type === "circle") {
+        const start = worldToScreen(node.x, node.y, camera);
+        const end = worldToScreen(node.endX, node.endY, camera);
+        if (selectedEl && node.id === selectedEl.id) {
+          drawSelection(ctx, start.x, start.y, end.x, end.y);
+        }
         ctx.save();
 
         ctx.beginPath();
-        const start = worldToScreen(node.x, node.y, camera);
-        const end = worldToScreen(node.endX, node.endY, camera);
         const center = {
           x: (start.x + end.x) / 2,
           y: (start.y + end.y) / 2,

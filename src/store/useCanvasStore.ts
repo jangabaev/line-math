@@ -46,7 +46,7 @@ export const useCanvasStore = create<CanvasStore>((set) => ({
     fill: "pattern",
     pressure: "constant",
     opacity: 1,
-    background: "#000000",
+    background: "#1212e600",
     borderRadius: 20,
   },
   camera: {

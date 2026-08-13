@@ -15,7 +15,9 @@ const Background = () => {
               className={style.color}
               onClick={() => setLineStyle({ ...designAll, background: el })}
               style={{ backgroundColor: el }}
-            ></div>
+            >
+              {el === "1212e600" && <img src="remover-after.png" />}
+            </div>
           ),
         )}
         <div className={style.line}></div>

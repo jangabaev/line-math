@@ -24,15 +24,37 @@ export const foundElement = ({
   const mouseY = e.clientY - rect.top;
 
   const world = screenToWorld(mouseX, mouseY, camera);
-
   for (const node of [...nodes].reverse()) {
     const left = Math.min(node.x, node.endX);
     const right = Math.max(node.x, node.endX);
     const top = Math.min(node.y, node.endY);
     const bottom = Math.max(node.y, node.endY);
-
     if (
-      node.type === "rectangle" &&
+      node.type === "line" &&
+      world.x >= left &&
+      world.x <= right &&
+      world.y >= top &&
+      world.y <= bottom
+    ) {
+      // for the linera function y=kx+b  line between y=kx+b-10 and y=kx+b+10
+      let k = (node.endY - node.y) / (node.endX - node.x);
+      let b = (node.y * node.endX - node.endY * node.x) / (node.endX - node.x);
+      if (k * world.x + b - 100 < world.y && k * world.x + b + 100 > world.y) {
+        lastMouse.current = {
+          x: e.clientX,
+          y: e.clientY,
+        };
+
+        setSelectedEl({
+          ...node,
+          move: true,
+        });
+
+        return;
+      }
+    }
+    if (
+      (node.type === "rectangle" || node.type === "circle") &&
       world.x >= left &&
       world.x <= right &&
       world.y >= top &&
